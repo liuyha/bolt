@@ -1,240 +1,349 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, Button, Input, Tag, Space, Row, Col, Avatar, Tooltip, Empty } from 'antd';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  PlayCircleOutlined, 
-  PauseCircleOutlined, 
-  TeamOutlined,
-  CrownOutlined,
-  UserOutlined
-} from '@ant-design/icons';
-import { Project } from '../../types';
-import { ProjectForm } from './ProjectForm';
+import { Project, DataSource, ApiInterface, InterfaceCategory, Table, Field } from '../types';
 
-const { Search } = Input;
-const { Meta } = Card;
+export const mockProjects: Project[] = [
+  {
+    projectId: 1,
+    name: '电商平台API',
+    description: '电商平台的核心API接口设计',
+    state: 'active',
+    memberTotal: 5,
+    belongRole: 'owner',
+    administrators: '张三',
+    createdTime: '2024-01-15T08:00:00.000Z'
+  },
+  {
+    projectId: 2,
+    name: '用户管理系统',
+    description: '企业用户管理系统API',
+    state: 'active',
+    memberTotal: 3,
+    belongRole: 'admin',
+    administrators: '李四',
+    createdTime: '2024-02-01T09:30:00.000Z'
+  },
+  {
+    projectId: 3,
+    name: '支付网关',
+    description: '统一支付网关接口',
+    state: 'inactive',
+    memberTotal: 8,
+    belongRole: 'member',
+    administrators: '王五',
+    createdTime: '2024-01-20T14:15:00.000Z'
+  }
+];
 
-interface ProjectListProps {
-  projects: Project[];
-  onUpdateProjects: (projects: Project[]) => void;
-}
+export const mockDataSources: DataSource[] = [
+  {
+    id: '1',
+    projectId: '1',
+    name: '主数据库',
+    type: 'mysql',
+    host: 'localhost',
+    port: 3306,
+    database: 'ecommerce',
+    username: 'root',
+    password: '******',
+    status: 'connected',
+    createdAt: '2024-01-15T08:30:00.000Z',
+    typeMappings: [
+      { id: '1', dbType: 'varchar', codeType: 'string', language: 'typescript' },
+      { id: '2', dbType: 'int', codeType: 'number', language: 'typescript' },
+      { id: '3', dbType: 'timestamp', codeType: 'Date', language: 'typescript' }
+    ]
+  },
+  {
+    id: '2',
+    projectId: '2',
+    name: '用户数据库',
+    type: 'postgresql',
+    host: '192.168.1.100',
+    port: 5432,
+    database: 'users',
+    username: 'postgres',
+    password: '******',
+    status: 'connected',
+    createdAt: '2024-02-01T10:00:00.000Z'
+  }
+];
 
-export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
-  const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
+export const mockCategories: InterfaceCategory[] = [
+  {
+    id: '1',
+    projectId: '1',
+    name: '用户管理',
+    description: '用户相关的API接口'
+  },
+  {
+    id: '2',
+    projectId: '1',
+    name: '商品管理',
+    description: '商品相关的API接口'
+  },
+  {
+    id: '3',
+    projectId: '2',
+    name: '权限管理',
+    description: '权限相关的API接口'
+  }
+];
 
-  const filteredProjects = projects.filter(project =>
-    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    project.description.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+export const mockInterfaces: ApiInterface[] = [
+  {
+    id: '1',
+    projectId: '1',
+    categoryId: '1',
+    name: '获取用户信息',
+    path: '/api/users/{id}',
+    method: 'GET',
+    description: '根据用户ID获取用户详细信息',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T09:00:00.000Z',
+    updatedAt: '2024-01-15T09:00:00.000Z'
+  },
+  {
+    id: '2',
+    projectId: '1',
+    categoryId: '1',
+    name: '创建用户',
+    path: '/api/users',
+    method: 'POST',
+    description: '创建新用户',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T09:15:00.000Z',
+    updatedAt: '2024-01-15T09:15:00.000Z'
+  },
+  {
+    id: '3',
+    projectId: '1',
+    categoryId: '2',
+    name: '获取商品列表',
+    path: '/api/products',
+    method: 'GET',
+    description: '分页获取商品列表',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T10:00:00.000Z',
+    updatedAt: '2024-01-15T10:00:00.000Z'
+  }
+];
 
-  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newProject: Project = {
-      ...projectData,
-      projectId: Date.now(),
-      createdTime: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    onUpdateProjects([...projects, newProject]);
-    setShowCreateModal(false);
-  };
-
-  const handleEditProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
-    if (!editingProject) return;
-    
-    const updatedProject: Project = {
-      ...editingProject,
-      ...projectData,
-      updatedAt: new Date().toISOString()
-    };
-    
-    onUpdateProjects(projects.map(p => p.projectId === editingProject.projectId ? updatedProject : p));
-    setEditingProject(null);
-  };
-
-  const handleDeleteProject = (projectId: string) => {
-    onUpdateProjects(projects.filter(p => p.projectId.toString() !== projectId));
-  };
-
-  const handleToggleStatus = (project: Project) => {
-    const updatedProject = {
-      ...project,
-      state: project.state === 'active' ? 'inactive' : 'active',
-      updatedAt: new Date().toISOString()
-    };
-    onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
-  };
-
-  const getRoleIcon = (role?: string) => {
-    switch (role) {
-      case 'owner':
-        return <CrownOutlined style={{ color: '#f5222d' }} />;
-      case 'admin':
-        return <CrownOutlined style={{ color: '#faad14' }} />;
-      default:
-        return <UserOutlined style={{ color: '#8c8c8c' }} />;
-    }
-  };
-
-  const renderProjectActions = (project: Project) => [
-    <Tooltip title="成员管理" key="members">
-      <Button 
-        type="text" 
-        icon={<TeamOutlined />} 
-        onClick={() => navigate(`/project/${project.projectId}/members`)}
-      />
-    </Tooltip>,
-    <Tooltip title={project.state === 'active' ? '暂停项目' : '启动项目'} key="toggle">
-      <Button 
-        type="text" 
-        icon={project.state === 'active' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-        onClick={() => handleToggleStatus(project)}
-      />
-    </Tooltip>,
-    <Tooltip title="编辑项目" key="edit">
-      <Button 
-        type="text" 
-        icon={<EditOutlined />} 
-        onClick={() => setEditingProject(project)}
-      />
-    </Tooltip>,
-    <Tooltip title="删除项目" key="delete">
-      <Button 
-        type="text" 
-        danger 
-        icon={<DeleteOutlined />} 
-        onClick={() => handleDeleteProject(project.projectId)}
-      />
-    </Tooltip>
-  ];
-
-  return (
-    <div>
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>项目管理</h2>
-          <p style={{ margin: '4px 0 0 0', color: '#8c8c8c' }}>管理您的API设计项目</p>
-        </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
-          新建项目
-        </Button>
-      </div>
-
-      <div style={{ marginBottom: 24 }}>
-        <Search
-          placeholder="搜索项目..."
-          allowClear
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ maxWidth: 400 }}
-        />
-      </div>
-
-      {filteredProjects.length === 0 ? (
-        <Empty
-          description="暂无项目"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        >
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
-            新建项目
-          </Button>
-        </Empty>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {filteredProjects.map((project) => (
-            <Col xs={24} sm={12} lg={8} key={project.projectId}>
-              <Card
-                hoverable
-                actions={renderProjectActions(project)}
-                style={{ height: '100%' }}
-              >
-                <Meta
-                  title={
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>{project.name}</span>
-                      <Tag color={project.state === 'active' ? 'success' : 'default'}>
-                        {project.state === 'active' ? '活跃' : '暂停'}
-                      </Tag>
-                    </div>
-                  }
-                  description={
-                    <div>
-                      <p style={{ margin: '8px 0', color: '#8c8c8c', minHeight: 40 }}>
-                        {project.description}
-                      </p>
-                      
-                      <div style={{ marginBottom: 12 }}>
-                        <Space size="small">
-                          <Tooltip title={`当前角色: ${project.belongRole}`}>
-                            <Space size={4}>
-                              {getRoleIcon(project.belongRole)}
-                              <span style={{ fontSize: 12 }}>{project.belongRole}</span>
-                            </Space>
-                          </Tooltip>
-                          {project.administrators && (
-                            <Tooltip title={`管理员: ${project.administrators}`}>
-                              <Space size={4}>
-                                {getRoleIcon('admin')}
-                                <span style={{ fontSize: 12 }}>管理员</span>
-                              </Space>
-                            </Tooltip>
-                          )}
-                        </Space>
-                      </div>
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 12, color: '#8c8c8c' }}>
-                          创建于 {new Date(project.createdTime).toLocaleDateString('zh-CN')}
-                        </span>
-                        <Space size={4}>
-                          <TeamOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
-                          <span style={{ fontSize: 12, color: '#8c8c8c' }}>
-                            {project.memberTotal} 名成员
-                          </span>
-                        </Space>
-                      </div>
-                      
-                      <div style={{ marginTop: 12 }}>
-                        <Button 
-                          type="primary" 
-                          size="small" 
-                          block
-                          onClick={() => navigate(`/project/${project.projectId}/datasources`)}
-                        >
-                          进入项目
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      )}
-
-      <ProjectForm
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onSubmit={handleCreateProject}
-        title="新建项目"
-      />
-
-      {editingProject && (
-        <ProjectForm
-          isOpen={true}
-          onClose={() => setEditingProject(null)}
-          onSubmit={handleEditProject}
-          title="编辑项目"
-          initialData={editingProject}
-        />
-      )}
-    </div>
-  );
-}
+export const mockTables: Table[] = [
+  {
+    id: '1',
+    name: 'users',
+    comment: '用户表',
+    fields: [
+      {
+        id: '1',
+        name: 'id',
+        type: 'bigint',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: true,
+        isForeignKey: false,
+        comment: '用户ID'
+      },
+      {
+        id: '2',
+        name: 'username',
+        type: 'varchar',
+        length: 50,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '用户名'
+      },
+      {
+        id: '3',
+        name: 'email',
+        type: 'varchar',
+        length: 100,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '邮箱地址'
+      },
+      {
+        id: '4',
+        name: 'phone',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '手机号码'
+      },
+      {
+        id: '5',
+        name: 'created_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '创建时间'
+      },
+      {
+        id: '6',
+        name: 'updated_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '更新时间'
+      }
+    ]
+  },
+  {
+    id: '2',
+    name: 'products',
+    comment: '商品表',
+    fields: [
+      {
+        id: '7',
+        name: 'id',
+        type: 'bigint',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: true,
+        isForeignKey: false,
+        comment: '商品ID'
+      },
+      {
+        id: '8',
+        name: 'name',
+        type: 'varchar',
+        length: 200,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '商品名称'
+      },
+      {
+        id: '9',
+        name: 'description',
+        type: 'text',
+        nullable: true,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '商品描述'
+      },
+      {
+        id: '10',
+        name: 'price',
+        type: 'decimal',
+        length: 10,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '商品价格'
+      },
+      {
+        id: '11',
+        name: 'category_id',
+        type: 'bigint',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: true,
+        comment: '分类ID'
+      },
+      {
+        id: '12',
+        name: 'stock',
+        type: 'int',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '库存数量'
+      },
+      {
+        id: '13',
+        name: 'status',
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '商品状态'
+      },
+      {
+        id: '14',
+        name: 'created_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '创建时间'
+      }
+    ]
+  },
+  {
+    id: '3',
+    name: 'orders',
+    comment: '订单表',
+    fields: [
+      {
+        id: '15',
+        name: 'id',
+        type: 'bigint',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: true,
+        isForeignKey: false,
+        comment: '订单ID'
+      },
+      {
+        id: '16',
+        name: 'user_id',
+        type: 'bigint',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: true,
+        comment: '用户ID'
+      },
+      {
+        id: '17',
+        name: 'order_no',
+        type: 'varchar',
+        length: 50,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '订单号'
+      },
+      {
+        id: '18',
+        name: 'total_amount',
+        type: 'decimal',
+        length: 10,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '订单总金额'
+      },
+      {
+        id: '19',
+        name: 'status',
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '订单状态'
+      },
+      {
+        id: '20',
+        name: 'created_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '创建时间'
+      }
+    ]
+  }
+];
