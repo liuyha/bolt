@@ -199,6 +199,17 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
                           </span>
                         </Space>
                       </div>
+                      
+                      <div style={{ marginTop: 12 }}>
+                        <Button 
+                          type="primary" 
+                          size="small" 
+                          block
+                          onClick={() => navigate(`/project/${project.projectId}/datasources`)}
+                        >
+                          进入项目
+                        </Button>
+                      </div>
                     </div>
                   }
                 />
