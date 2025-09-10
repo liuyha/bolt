@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Input, Badge, Avatar, Dropdown } from 'antd';
-import { BellOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
+import { UserOutlined, SearchOutlined } from '@ant-design/icons';
 
 const { Header: AntHeader } = Layout;
 
@@ -42,10 +42,6 @@ export function Header() {
           style={{ width: 240 }}
         />
         
-        <Badge count={3} size="small">
-          <BellOutlined style={{ fontSize: 18, color: '#8c8c8c', cursor: 'pointer' }} />
-        </Badge>
-
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', minWidth: 0 }}>
             <Avatar size="small" icon={<UserOutlined />} />
