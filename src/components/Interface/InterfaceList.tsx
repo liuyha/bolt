@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Globe, Edit, Trash2, FolderPlus, Folder, ChevronRight } from 'lucide-react';
 import { ApiInterface, InterfaceCategory } from '../../types';
 import { Button } from '../Common/Button';
 import { InterfaceForm } from './InterfaceForm';
 import { CategoryForm } from './CategoryForm';
-import { InterfaceDesigner } from './InterfaceDesigner';
 
 interface InterfaceListProps {
   interfaces: ApiInterface[];
@@ -19,19 +19,25 @@ export function InterfaceList({
   onUpdateInterfaces, 
   onUpdateCategories 
 }: InterfaceListProps) {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [editingInterface, setEditingInterface] = useState<ApiInterface | null>(null);
-  const [designingInterface, setDesigningInterface] = useState<ApiInterface | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  // 过滤当前项目的接口和分类
+  const projectInterfaces = interfaces.filter(iface => iface.projectId === projectId);
+  const projectCategories = categories.filter(cat => cat.projectId === projectId);
+
   const filteredInterfaces = selectedCategory === 'all' 
-    ? interfaces 
-    : interfaces.filter(iface => iface.categoryId === selectedCategory);
+    ? projectInterfaces 
+    : projectInterfaces.filter(iface => iface.categoryId === selectedCategory);
 
   const handleCreateInterface = (interfaceData: Omit<ApiInterface, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newInterface: ApiInterface = {
       ...interfaceData,
+      projectId: projectId || '1',
       id: Date.now().toString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -62,6 +68,7 @@ export function InterfaceList({
   const handleCreateCategory = (categoryData: Omit<InterfaceCategory, 'id'>) => {
     const newCategory: InterfaceCategory = {
       ...categoryData,
+      projectId: projectId || '1',
       id: Date.now().toString()
     };
     onUpdateCategories([...categories, newCategory]);
@@ -69,7 +76,7 @@ export function InterfaceList({
   };
 
   const getCategoryName = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
+    const category = projectCategories.find(cat => cat.id === categoryId);
     return category?.name || '未分类';
   };
 
@@ -87,21 +94,6 @@ export function InterfaceList({
         return 'bg-gray-100 text-gray-800';
     }
   };
-
-  if (designingInterface) {
-    return (
-      <InterfaceDesigner
-        interface={designingInterface}
-        onClose={() => setDesigningInterface(null)}
-        onSave={(updatedInterface) => {
-          onUpdateInterfaces(interfaces.map(iface => 
-            iface.id === updatedInterface.id ? updatedInterface : iface
-          ));
-          setDesigningInterface(null);
-        }}
-      />
-    );
-  }
 
   return (
     <div className="p-6">
@@ -138,11 +130,11 @@ export function InterfaceList({
                 <Folder className="w-4 h-4" />
                 <span>全部接口</span>
                 <span className="ml-auto text-xs bg-gray-200 px-2 py-1 rounded-full">
-                  {interfaces.length}
+                  {projectInterfaces.length}
                 </span>
               </button>
               
-              {categories.map((category) => (
+              {projectCategories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
@@ -155,7 +147,7 @@ export function InterfaceList({
                   <Folder className="w-4 h-4" />
                   <span>{category.name}</span>
                   <span className="ml-auto text-xs bg-gray-200 px-2 py-1 rounded-full">
-                    {interfaces.filter(iface => iface.categoryId === category.id).length}
+                    {projectInterfaces.filter(iface => iface.categoryId === category.id).length}
                   </span>
                 </button>
               ))}
@@ -227,7 +219,7 @@ export function InterfaceList({
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => setDesigningInterface(apiInterface)}
+                              onClick={() => navigate(`/project/${projectId}/interface-designer/${apiInterface.id}`)}
                               className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
                               title="设计接口"
                             >
@@ -261,7 +253,7 @@ export function InterfaceList({
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateInterface}
-        categories={categories}
+        categories={projectCategories}
         title="新建接口"
       />
 
@@ -270,7 +262,7 @@ export function InterfaceList({
           isOpen={true}
           onClose={() => setEditingInterface(null)}
           onSubmit={handleEditInterface}
-          categories={categories}
+          categories={projectCategories}
           title="编辑接口"
           initialData={editingInterface}
         />
