@@ -35,12 +35,13 @@ export function Header({ title, subtitle }: HeaderProps) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 24px'
+      padding: '0 24px',
+      height: 64
     }}>
       <div>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#262626' }}>{title}</h1>
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#262626', lineHeight: 1.2 }}>{title}</h1>
         {subtitle && (
-          <p style={{ margin: 0, color: '#8c8c8c', fontSize: 14 }}>{subtitle}</p>
+          <p style={{ margin: '2px 0 0 0', color: '#8c8c8c', fontSize: 14, lineHeight: 1.2 }}>{subtitle}</p>
         )}
       </div>
 
@@ -58,7 +59,7 @@ export function Header({ title, subtitle }: HeaderProps) {
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
             <Avatar size="small" icon={<UserOutlined />} />
-            <div>
+            <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: 14, fontWeight: 500, color: '#262626' }}>开发者</div>
               <div style={{ fontSize: 12, color: '#8c8c8c' }}>admin@example.com</div>
             </div>
