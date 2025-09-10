@@ -1,11 +1,13 @@
 export interface Project {
-  id: string;
+  projectId: number;
   name: string;
-  description: string;
-  createdAt: string;
+  description?: string;
+  createdTime?: string;
   updatedAt: string;
-  status: 'active' | 'inactive';
-  members?: ProjectMember[];
+  state: string;
+  memberTotal?: number;
+  belongRole?: string;
+  administrators?: string;
 }
 
 export interface ProjectMember {
