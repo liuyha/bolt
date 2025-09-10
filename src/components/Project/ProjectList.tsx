@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Play, Pause } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Play, Pause, Users, FolderOpen } from 'lucide-react';
 import { Project } from '../../types';
 import { Button } from '../Common/Button';
 import { ProjectForm } from './ProjectForm';
+import { MemberList } from './MemberList';
 
 interface ProjectListProps {
   projects: Project[];
@@ -14,6 +15,7 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [managingMembers, setManagingMembers] = useState<Project | null>(null);
 
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,6 +61,27 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
     onUpdateProjects(projects.map(p => p.id === project.id ? updatedProject : p));
   };
 
+  const handleUpdateMembers = (projectId: string, members: any[]) => {
+    const updatedProjects = projects.map(p => 
+      p.id === projectId 
+        ? { ...p, members, updatedAt: new Date().toISOString() }
+        : p
+    );
+    onUpdateProjects(updatedProjects);
+  };
+
+  if (managingMembers) {
+    return (
+      <MemberList
+        projectId={managingMembers.id}
+        projectName={managingMembers.name}
+        members={managingMembers.members || []}
+        onUpdateMembers={(members) => handleUpdateMembers(managingMembers.id, members)}
+        onClose={() => setManagingMembers(null)}
+      />
+    );
+  }
+
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
@@ -100,6 +123,16 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    setManagingMembers(project);
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                  title="成员管理"
+                >
+                  <Users className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleToggleStatus(project);
                   }}
                   className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
@@ -136,6 +169,14 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
                 }`}>
                   {project.status === 'active' ? '活跃' : '暂停'}
                 </span>
+              </div>
+              <div className="text-xs text-gray-500">
+                {project.members && project.members.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {project.members.length} 名成员
+                  </span>
+                )}
               </div>
               <Button
                 size="sm"

@@ -5,6 +5,18 @@ export interface Project {
   createdAt: string;
   updatedAt: string;
   status: 'active' | 'inactive';
+  members?: ProjectMember[];
+}
+
+export interface ProjectMember {
+  id: string;
+  projectId: string;
+  userId: string;
+  username: string;
+  email: string;
+  role: 'admin' | 'member';
+  joinedAt: string;
+  status: 'active' | 'inactive';
 }
 
 export interface DataSource {

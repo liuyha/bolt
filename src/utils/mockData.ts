@@ -1,4 +1,37 @@
-import { Project, DataSource, Table, Field, ApiInterface, InterfaceCategory } from '../types';
+import { Project, DataSource, Table, Field, ApiInterface, InterfaceCategory, ProjectMember } from '../types';
+
+export const mockMembers: ProjectMember[] = [
+  {
+    id: '1',
+    projectId: '1',
+    userId: 'user1',
+    username: '张三',
+    email: 'zhangsan@example.com',
+    role: 'admin',
+    joinedAt: '2024-01-15T10:30:00Z',
+    status: 'active'
+  },
+  {
+    id: '2',
+    projectId: '1',
+    userId: 'user2',
+    username: '李四',
+    email: 'lisi@example.com',
+    role: 'member',
+    joinedAt: '2024-01-16T14:20:00Z',
+    status: 'active'
+  },
+  {
+    id: '3',
+    projectId: '2',
+    userId: 'user3',
+    username: '王五',
+    email: 'wangwu@example.com',
+    role: 'admin',
+    joinedAt: '2024-01-10T09:15:00Z',
+    status: 'active'
+  }
+];
 
 export const mockProjects: Project[] = [
   {
@@ -7,7 +40,8 @@ export const mockProjects: Project[] = [
     description: '电商平台核心业务API接口设计',
     createdAt: '2024-01-15T10:30:00Z',
     updatedAt: '2024-01-20T14:22:00Z',
-    status: 'active'
+    status: 'active',
+    members: mockMembers.filter(m => m.projectId === '1')
   },
   {
     id: '2',
@@ -15,7 +49,8 @@ export const mockProjects: Project[] = [
     description: '企业级用户权限管理系统API',
     createdAt: '2024-01-10T09:15:00Z',
     updatedAt: '2024-01-18T16:45:00Z',
-    status: 'active'
+    status: 'active',
+    members: mockMembers.filter(m => m.projectId === '2')
   },
   {
     id: '3',
@@ -23,7 +58,8 @@ export const mockProjects: Project[] = [
     description: 'CMS内容发布和管理API',
     createdAt: '2024-01-05T08:00:00Z',
     updatedAt: '2024-01-12T11:30:00Z',
-    status: 'inactive'
+    status: 'inactive',
+    members: []
   }
 ];
 
