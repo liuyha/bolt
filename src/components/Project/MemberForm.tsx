@@ -9,6 +9,7 @@ interface MemberFormProps {
   onSubmit: (data: Omit<ProjectMember, 'id' | 'joinedAt'>) => void;
   title: string;
   projectId: string;
+  currentUserRole: 'owner' | 'admin' | 'member';
   initialData?: ProjectMember;
 }
 
@@ -18,6 +19,7 @@ export function MemberForm({
   onSubmit, 
   title, 
   projectId, 
+  currentUserRole,
   initialData 
 }: MemberFormProps) {
   const [formData, setFormData] = useState({
@@ -56,6 +58,23 @@ export function MemberForm({
     onSubmit(formData);
   };
 
+  const getAvailableRoles = () => {
+    if (currentUserRole === 'owner') {
+      return [
+        { value: 'owner', label: '拥有者' },
+        { value: 'admin', label: '管理员' },
+        { value: 'member', label: '成员' }
+      ];
+    } else if (currentUserRole === 'admin') {
+      return [
+        { value: 'member', label: '成员' }
+      ];
+    } else {
+      return [
+        { value: 'member', label: '成员' }
+      ];
+    }
+  };
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title}>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,14 +116,22 @@ export function MemberForm({
             id="role"
             required
             value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'member' })}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value as 'owner' | 'admin' | 'member' })}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="member">成员</option>
-            <option value="admin">管理员</option>
+            {getAvailableRoles().map(role => (
+              <option key={role.value} value={role.value}>
+                {role.label}
+              </option>
+            ))}
           </select>
           <p className="text-sm text-gray-500 mt-1">
-            管理员可以管理项目设置和成员，成员只能查看和编辑接口
+            {currentUserRole === 'owner' 
+              ? '拥有者拥有所有权限，管理员可以管理项目和成员，成员只能查看和编辑接口'
+              : currentUserRole === 'admin'
+              ? '您只能添加成员角色'
+              : '您没有权限添加成员'
+            }
           </p>
         </div>
 

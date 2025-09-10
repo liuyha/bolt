@@ -6,8 +6,8 @@ export const mockMembers: ProjectMember[] = [
     projectId: '1',
     userId: 'user1',
     username: '张三',
-    email: 'zhangsan@example.com',
-    role: 'admin',
+    email: 'admin@example.com',
+    role: 'owner',
     joinedAt: '2024-01-15T10:30:00Z',
     status: 'active'
   },
@@ -17,8 +17,18 @@ export const mockMembers: ProjectMember[] = [
     userId: 'user2',
     username: '李四',
     email: 'lisi@example.com',
-    role: 'member',
+    role: 'admin',
     joinedAt: '2024-01-16T14:20:00Z',
+    status: 'active'
+  },
+  {
+    id: '4',
+    projectId: '1',
+    userId: 'user4',
+    username: '赵六',
+    email: 'zhaoliu@example.com',
+    role: 'member',
+    joinedAt: '2024-01-17T16:30:00Z',
     status: 'active'
   },
   {
@@ -27,7 +37,7 @@ export const mockMembers: ProjectMember[] = [
     userId: 'user3',
     username: '王五',
     email: 'wangwu@example.com',
-    role: 'admin',
+    role: 'owner',
     joinedAt: '2024-01-10T09:15:00Z',
     status: 'active'
   }

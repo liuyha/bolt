@@ -70,12 +70,19 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
     onUpdateProjects(updatedProjects);
   };
 
+  // 模拟当前用户角色，实际应用中应该从用户上下文获取
+  const getCurrentUserRole = (project: Project): 'owner' | 'admin' | 'member' => {
+    // 这里简化处理，假设第一个成员是拥有者，实际应该根据当前登录用户判断
+    const currentUser = project.members?.find(m => m.email === 'admin@example.com');
+    return currentUser?.role || 'member';
+  };
   if (managingMembers) {
     return (
       <MemberList
         projectId={managingMembers.id}
         projectName={managingMembers.name}
         members={managingMembers.members || []}
+        currentUserRole={getCurrentUserRole(managingMembers)}
         onUpdateMembers={(members) => handleUpdateMembers(managingMembers.id, members)}
         onClose={() => setManagingMembers(null)}
       />
