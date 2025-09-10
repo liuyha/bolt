@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Input, Badge, Avatar, Dropdown } from 'antd';
-import { UserOutlined, SearchOutlined } from '@ant-design/icons';
+import { UserOutlined, SearchOutlined, StarOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 
 const { Header: AntHeader } = Layout;
 
@@ -42,6 +42,86 @@ export function Header() {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#595959',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f5f5f5';
+              e.currentTarget.style.color = '#262626';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#595959';
+            }}
+            title="查看收藏项目"
+          >
+            <StarOutlined style={{ fontSize: 16 }} />
+          </button>
+          
+          <button
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#595959',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f5f5f5';
+              e.currentTarget.style.color = '#262626';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#595959';
+            }}
+            title="创建项目"
+          >
+            <PlusOutlined style={{ fontSize: 16 }} />
+          </button>
+          
+          <button
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#595959',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f5f5f5';
+              e.currentTarget.style.color = '#262626';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#595959';
+            }}
+            title="帮助中心"
+          >
+            <QuestionCircleOutlined style={{ fontSize: 16 }} />
+          </button>
+        </div>
+        
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', minWidth: 0 }}>
             <Avatar size="small" icon={<UserOutlined />} />
