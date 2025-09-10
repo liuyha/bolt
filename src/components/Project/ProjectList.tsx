@@ -110,7 +110,16 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 mb-2">{project.name}</h3>
+                <div className="flex items-center gap-3 mb-2">
+                  <h3 className="font-semibold text-gray-900">{project.name}</h3>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    project.status === 'active' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {project.status === 'active' ? '活跃' : '暂停'}
+                  </span>
+                </div>
                 <p className="text-gray-600 text-sm line-clamp-2">{project.description}</p>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -156,13 +165,6 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  project.status === 'active' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {project.status === 'active' ? '活跃' : '暂停'}
-                </span>
                 {project.members && project.members.length > 0 && (
                   <div className="flex items-center gap-1">
                     {(() => {
