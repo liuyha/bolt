@@ -150,15 +150,15 @@ export function MemberList({ projects, onUpdateProjects }: MemberListProps) {
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3">
-                onClick={() => navigate('/')}
-              onClick={onClose}
+            <button
+              onClick={() => navigate('/')}
               className="text-gray-600 hover:text-gray-900"
             >
               ← 返回项目
             </button>
             <div className="w-px h-6 bg-gray-300" />
-                <h2 className="text-xl font-semibold text-gray-900">{project.name} - 成员管理</h2>
-              <h2 className="text-xl font-semibold text-gray-900">{projectName} - 成员管理</h2>
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900">{project.name} - 成员管理</h2>
               <p className="text-gray-600 mt-1">管理项目成员和权限</p>
             </div>
           </div>
