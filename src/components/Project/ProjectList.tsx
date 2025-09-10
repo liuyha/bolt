@@ -37,8 +37,8 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
   const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newProject: Project = {
       ...projectData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+      projectId: Date.now(),
+      createdTime: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     onUpdateProjects([...projects, newProject]);
@@ -54,24 +54,24 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
       updatedAt: new Date().toISOString()
     };
     
-    onUpdateProjects(projects.map(p => p.id === editingProject.id ? updatedProject : p));
+    onUpdateProjects(projects.map(p => p.projectId === editingProject.projectId ? updatedProject : p));
     setEditingProject(null);
   };
 
   const handleDeleteProject = (projectId: string) => {
-    onUpdateProjects(projects.filter(p => p.id !== projectId));
+    onUpdateProjects(projects.filter(p => p.projectId.toString() !== projectId));
   };
 
   const handleToggleStatus = (project: Project) => {
     const updatedProject = {
       ...project,
-      status: project.status === 'active' ? 'inactive' : 'active' as const,
+      state: project.state === 'active' ? 'inactive' : 'active',
       updatedAt: new Date().toISOString()
     };
-    onUpdateProjects(projects.map(p => p.id === project.id ? updatedProject : p));
+    onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
   };
 
-  const getRoleIcon = (role: string) => {
+  const getRoleIcon = (role?: string) => {
     switch (role) {
       case 'owner':
         return <CrownOutlined style={{ color: '#f5222d' }} />;
@@ -87,13 +87,13 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
       <Button 
         type="text" 
         icon={<TeamOutlined />} 
-        onClick={() => navigate(`/project/${project.id}/members`)}
+        onClick={() => navigate(`/project/${project.projectId}/members`)}
       />
     </Tooltip>,
-    <Tooltip title={project.status === 'active' ? '暂停项目' : '启动项目'} key="toggle">
+    <Tooltip title={project.state === 'active' ? '暂停项目' : '启动项目'} key="toggle">
       <Button 
         type="text" 
-        icon={project.status === 'active' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+        icon={project.state === 'active' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
         onClick={() => handleToggleStatus(project)}
       />
     </Tooltip>,
@@ -109,7 +109,7 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
         type="text" 
         danger 
         icon={<DeleteOutlined />} 
-        onClick={() => handleDeleteProject(project.id)}
+        onClick={() => handleDeleteProject(project.projectId)}
       />
     </Tooltip>
   ];
@@ -148,7 +148,7 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
       ) : (
         <Row gutter={[16, 16]}>
           {filteredProjects.map((project) => (
-            <Col xs={24} sm={12} lg={8} key={project.id}>
+            <Col xs={24} sm={12} lg={8} key={project.projectId}>
               <Card
                 hoverable
                 actions={renderProjectActions(project)}
@@ -158,8 +158,8 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
                   title={
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span>{project.name}</span>
-                      <Tag color={project.status === 'active' ? 'success' : 'default'}>
-                        {project.status === 'active' ? '活跃' : '暂停'}
+                      <Tag color={project.state === 'active' ? 'success' : 'default'}>
+                        {project.state === 'active' ? '活跃' : '暂停'}
                       </Tag>
                     </div>
                   }
@@ -169,52 +169,35 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
                         {project.description}
                       </p>
                       
-                      {project.members && project.members.length > 0 && (
-                        <div style={{ marginBottom: 12 }}>
-                          <Space size="small">
-                            {(() => {
-                              const owner = project.members.find(m => m.role === 'owner');
-                              const admins = project.members.filter(m => m.role === 'admin');
-                              
-                              return (
-                                <>
-                                  {owner && (
-                                    <Tooltip title={`拥有者: ${owner.username}`}>
-                                      <Space size={4}>
-                                        {getRoleIcon('owner')}
-                                        <span style={{ fontSize: 12 }}>{owner.username}</span>
-                                      </Space>
-                                    </Tooltip>
-                                  )}
-                                  {admins.length > 0 && (
-                                    <Tooltip title={`管理员: ${admins.map(a => a.username).join(', ')}`}>
-                                      <Space size={4}>
-                                        {getRoleIcon('admin')}
-                                        <span style={{ fontSize: 12 }}>
-                                          {admins.length === 1 ? admins[0].username : `${admins.length}名管理员`}
-                                        </span>
-                                      </Space>
-                                    </Tooltip>
-                                  )}
-                                </>
-                              );
-                            })()}
-                          </Space>
-                        </div>
-                      )}
+                      <div style={{ marginBottom: 12 }}>
+                        <Space size="small">
+                          <Tooltip title={`当前角色: ${project.belongRole}`}>
+                            <Space size={4}>
+                              {getRoleIcon(project.belongRole)}
+                              <span style={{ fontSize: 12 }}>{project.belongRole}</span>
+                            </Space>
+                          </Tooltip>
+                          {project.administrators && (
+                            <Tooltip title={`管理员: ${project.administrators}`}>
+                              <Space size={4}>
+                                {getRoleIcon('admin')}
+                                <span style={{ fontSize: 12 }}>管理员</span>
+                              </Space>
+                            </Tooltip>
+                          )}
+                        </Space>
+                      </div>
                       
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span style={{ fontSize: 12, color: '#8c8c8c' }}>
-                          创建于 {new Date(project.createdAt).toLocaleDateString('zh-CN')}
+                          创建于 {new Date(project.createdTime).toLocaleDateString('zh-CN')}
                         </span>
-                        {project.members && project.members.length > 0 && (
-                          <Space size={4}>
-                            <TeamOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
-                            <span style={{ fontSize: 12, color: '#8c8c8c' }}>
-                              {project.members.length} 名成员
-                            </span>
-                          </Space>
-                        )}
+                        <Space size={4}>
+                          <TeamOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
+                          <span style={{ fontSize: 12, color: '#8c8c8c' }}>
+                            {project.memberTotal} 名成员
+                          </span>
+                        </Space>
                       </div>
                       
                       <div style={{ marginTop: 12 }}>
@@ -222,7 +205,7 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
                           type="primary" 
                           size="small" 
                           block
-                          onClick={() => navigate(`/project/${project.id}/datasources`)}
+                          onClick={() => navigate(`/project/${project.projectId}/datasources`)}
                         >
                           进入项目
                         </Button>

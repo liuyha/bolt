@@ -1,306 +1,240 @@
-import { Project, DataSource, Table, Field, ApiInterface, InterfaceCategory, ProjectMember } from '../types';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, Button, Input, Tag, Space, Row, Col, Avatar, Tooltip, Empty } from 'antd';
+import { 
+  PlusOutlined, 
+  SearchOutlined, 
+  EditOutlined, 
+  DeleteOutlined, 
+  PlayCircleOutlined, 
+  PauseCircleOutlined, 
+  TeamOutlined,
+  CrownOutlined,
+  UserOutlined
+} from '@ant-design/icons';
+import { Project } from '../../types';
+import { ProjectForm } from './ProjectForm';
 
-export const mockMembers: ProjectMember[] = [
-  {
-    id: '1',
-    projectId: '1',
-    userId: 'user1',
-    username: '张三',
-    email: 'admin@example.com',
-    role: 'owner',
-    joinedAt: '2024-01-15T10:30:00Z',
-    status: 'active'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    userId: 'user2',
-    username: '李四',
-    email: 'lisi@example.com',
-    role: 'admin',
-    joinedAt: '2024-01-16T14:20:00Z',
-    status: 'active'
-  },
-  {
-    id: '4',
-    projectId: '1',
-    userId: 'user4',
-    username: '赵六',
-    email: 'zhaoliu@example.com',
-    role: 'member',
-    joinedAt: '2024-01-17T16:30:00Z',
-    status: 'active'
-  },
-  {
-    id: '3',
-    projectId: '2',
-    userId: 'user3',
-    username: '王五',
-    email: 'wangwu@example.com',
-    role: 'owner',
-    joinedAt: '2024-01-10T09:15:00Z',
-    status: 'active'
-  }
-];
+const { Search } = Input;
+const { Meta } = Card;
 
-export const mockProjects: Project[] = [
-  {
-    id: '1',
-    name: '电商平台API',
-    description: '电商平台核心业务API接口设计',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-20T14:22:00Z',
-    status: 'active',
-    members: mockMembers.filter(m => m.projectId === '1')
-  },
-  {
-    id: '2',
-    name: '用户管理系统',
-    description: '企业级用户权限管理系统API',
-    createdAt: '2024-01-10T09:15:00Z',
-    updatedAt: '2024-01-18T16:45:00Z',
-    status: 'active',
-    members: mockMembers.filter(m => m.projectId === '2')
-  },
-  {
-    id: '3',
-    name: '内容管理平台',
-    description: 'CMS内容发布和管理API',
-    createdAt: '2024-01-05T08:00:00Z',
-    updatedAt: '2024-01-12T11:30:00Z',
-    status: 'inactive',
-    members: []
-  }
-];
+interface ProjectListProps {
+  projects: Project[];
+  onUpdateProjects: (projects: Project[]) => void;
+}
 
-export const mockDataSources: DataSource[] = [
-  {
-    id: '1',
-    projectId: '1',
-    name: '主数据库',
-    type: 'mysql',
-    host: 'localhost',
-    port: 3306,
-    database: 'ecommerce',
-    username: 'root',
-    password: '******',
-    status: 'connected',
-    createdAt: '2024-01-15T10:35:00Z'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    name: '用户数据库',
-    type: 'postgresql',
-    host: 'pg.example.com',
-    port: 5432,
-    database: 'users',
-    username: 'postgres',
-    password: '******',
-    status: 'connected',
-    createdAt: '2024-01-16T14:20:00Z'
-  }
-];
+export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-export const mockTables: Table[] = [
-  {
-    id: '1',
-    name: 'users',
-    dataSourceId: '1',
-    comment: '用户信息表',
-    fields: [
-      {
-        id: '1',
-        name: 'id',
-        type: 'bigint',
-        nullable: false,
-        isPrimaryKey: true,
-        isForeignKey: false,
-        comment: '用户ID'
-      },
-      {
-        id: '2',
-        name: 'username',
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '用户名'
-      },
-      {
-        id: '3',
-        name: 'email',
-        type: 'varchar',
-        length: 100,
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '邮箱地址'
-      },
-      {
-        id: '4',
-        name: 'created_at',
-        type: 'timestamp',
-        nullable: false,
-        defaultValue: 'CURRENT_TIMESTAMP',
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '创建时间'
-      }
-    ]
-  },
-  {
-    id: '2',
-    name: 'products',
-    dataSourceId: '1',
-    comment: '商品信息表',
-    fields: [
-      {
-        id: '5',
-        name: 'id',
-        type: 'bigint',
-        nullable: false,
-        isPrimaryKey: true,
-        isForeignKey: false,
-        comment: '商品ID'
-      },
-      {
-        id: '6',
-        name: 'name',
-        type: 'varchar',
-        length: 200,
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '商品名称'
-      },
-      {
-        id: '7',
-        name: 'price',
-        type: 'decimal',
-        length: 10,
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '商品价格'
-      },
-      {
-        id: '8',
-        name: 'user_id',
-        type: 'bigint',
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: true,
-        comment: '创建用户ID'
-      }
-    ]
-  },
-  {
-    id: '3',
-    name: 'orders',
-    dataSourceId: '1',
-    comment: '订单信息表',
-    fields: [
-      {
-        id: '9',
-        name: 'id',
-        type: 'bigint',
-        nullable: false,
-        isPrimaryKey: true,
-        isForeignKey: false,
-        comment: '订单ID'
-      },
-      {
-        id: '10',
-        name: 'order_no',
-        type: 'varchar',
-        length: 50,
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '订单号'
-      },
-      {
-        id: '11',
-        name: 'total_amount',
-        type: 'decimal',
-        length: 10,
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '订单总金额'
-      },
-      {
-        id: '12',
-        name: 'user_id',
-        type: 'bigint',
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: true,
-        comment: '用户ID'
-      },
-      {
-        id: '13',
-        name: 'status',
-        type: 'varchar',
-        length: 20,
-        nullable: false,
-        defaultValue: 'pending',
-        isPrimaryKey: false,
-        isForeignKey: false,
-        comment: '订单状态'
-      }
-    ]
-  }
-];
+  const filteredProjects = projects.filter(project =>
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-export const mockCategories: InterfaceCategory[] = [
-  {
-    id: '1',
-    projectId: '1',
-    name: '用户管理',
-    description: '用户相关的API接口'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    name: '商品管理',
-    description: '商品相关的API接口'
-  },
-  {
-    id: '3',
-    projectId: '1',
-    name: '订单管理',
-    description: '订单相关的API接口'
-  }
-];
+  const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newProject: Project = {
+      ...projectData,
+      projectId: Date.now(),
+      createdTime: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    onUpdateProjects([...projects, newProject]);
+    setShowCreateModal(false);
+  };
 
-export const mockInterfaces: ApiInterface[] = [
-  {
-    id: '1',
-    projectId: '1',
-    categoryId: '1',
-    name: '获取用户信息',
-    path: '/api/users/{id}',
-    method: 'GET',
-    description: '根据用户ID获取用户详细信息',
-    requestParams: [],
-    responseParams: [],
-    createdAt: '2024-01-15T11:00:00Z',
-    updatedAt: '2024-01-20T15:30:00Z'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    categoryId: '1',
-    name: '创建用户',
-    path: '/api/users',
-    method: 'POST',
-    description: '创建新用户账户',
-    requestParams: [],
-    responseParams: [],
-    createdAt: '2024-01-16T09:30:00Z',
-    updatedAt: '2024-01-18T13:45:00Z'
-  }
-];
+  const handleEditProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!editingProject) return;
+    
+    const updatedProject: Project = {
+      ...editingProject,
+      ...projectData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    onUpdateProjects(projects.map(p => p.projectId === editingProject.projectId ? updatedProject : p));
+    setEditingProject(null);
+  };
+
+  const handleDeleteProject = (projectId: string) => {
+    onUpdateProjects(projects.filter(p => p.projectId.toString() !== projectId));
+  };
+
+  const handleToggleStatus = (project: Project) => {
+    const updatedProject = {
+      ...project,
+      state: project.state === 'active' ? 'inactive' : 'active',
+      updatedAt: new Date().toISOString()
+    };
+    onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
+  };
+
+  const getRoleIcon = (role?: string) => {
+    switch (role) {
+      case 'owner':
+        return <CrownOutlined style={{ color: '#f5222d' }} />;
+      case 'admin':
+        return <CrownOutlined style={{ color: '#faad14' }} />;
+      default:
+        return <UserOutlined style={{ color: '#8c8c8c' }} />;
+    }
+  };
+
+  const renderProjectActions = (project: Project) => [
+    <Tooltip title="成员管理" key="members">
+      <Button 
+        type="text" 
+        icon={<TeamOutlined />} 
+        onClick={() => navigate(`/project/${project.projectId}/members`)}
+      />
+    </Tooltip>,
+    <Tooltip title={project.state === 'active' ? '暂停项目' : '启动项目'} key="toggle">
+      <Button 
+        type="text" 
+        icon={project.state === 'active' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
+        onClick={() => handleToggleStatus(project)}
+      />
+    </Tooltip>,
+    <Tooltip title="编辑项目" key="edit">
+      <Button 
+        type="text" 
+        icon={<EditOutlined />} 
+        onClick={() => setEditingProject(project)}
+      />
+    </Tooltip>,
+    <Tooltip title="删除项目" key="delete">
+      <Button 
+        type="text" 
+        danger 
+        icon={<DeleteOutlined />} 
+        onClick={() => handleDeleteProject(project.projectId)}
+      />
+    </Tooltip>
+  ];
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>项目管理</h2>
+          <p style={{ margin: '4px 0 0 0', color: '#8c8c8c' }}>管理您的API设计项目</p>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
+          新建项目
+        </Button>
+      </div>
+
+      <div style={{ marginBottom: 24 }}>
+        <Search
+          placeholder="搜索项目..."
+          allowClear
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ maxWidth: 400 }}
+        />
+      </div>
+
+      {filteredProjects.length === 0 ? (
+        <Empty
+          description="暂无项目"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        >
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
+            新建项目
+          </Button>
+        </Empty>
+      ) : (
+        <Row gutter={[16, 16]}>
+          {filteredProjects.map((project) => (
+            <Col xs={24} sm={12} lg={8} key={project.projectId}>
+              <Card
+                hoverable
+                actions={renderProjectActions(project)}
+                style={{ height: '100%' }}
+              >
+                <Meta
+                  title={
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span>{project.name}</span>
+                      <Tag color={project.state === 'active' ? 'success' : 'default'}>
+                        {project.state === 'active' ? '活跃' : '暂停'}
+                      </Tag>
+                    </div>
+                  }
+                  description={
+                    <div>
+                      <p style={{ margin: '8px 0', color: '#8c8c8c', minHeight: 40 }}>
+                        {project.description}
+                      </p>
+                      
+                      <div style={{ marginBottom: 12 }}>
+                        <Space size="small">
+                          <Tooltip title={`当前角色: ${project.belongRole}`}>
+                            <Space size={4}>
+                              {getRoleIcon(project.belongRole)}
+                              <span style={{ fontSize: 12 }}>{project.belongRole}</span>
+                            </Space>
+                          </Tooltip>
+                          {project.administrators && (
+                            <Tooltip title={`管理员: ${project.administrators}`}>
+                              <Space size={4}>
+                                {getRoleIcon('admin')}
+                                <span style={{ fontSize: 12 }}>管理员</span>
+                              </Space>
+                            </Tooltip>
+                          )}
+                        </Space>
+                      </div>
+                      
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 12, color: '#8c8c8c' }}>
+                          创建于 {new Date(project.createdTime).toLocaleDateString('zh-CN')}
+                        </span>
+                        <Space size={4}>
+                          <TeamOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
+                          <span style={{ fontSize: 12, color: '#8c8c8c' }}>
+                            {project.memberTotal} 名成员
+                          </span>
+                        </Space>
+                      </div>
+                      
+                      <div style={{ marginTop: 12 }}>
+                        <Button 
+                          type="primary" 
+                          size="small" 
+                          block
+                          onClick={() => navigate(`/project/${project.projectId}/datasources`)}
+                        >
+                          进入项目
+                        </Button>
+                      </div>
+                    </div>
+                  }
+                />
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      )}
+
+      <ProjectForm
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreateProject}
+        title="新建项目"
+      />
+
+      {editingProject && (
+        <ProjectForm
+          isOpen={true}
+          onClose={() => setEditingProject(null)}
+          onSubmit={handleEditProject}
+          title="编辑项目"
+          initialData={editingProject}
+        />
+      )}
+    </div>
+  );
+}
