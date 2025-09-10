@@ -1,36 +1,51 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Users, Edit, Trash2, Crown, User, CheckCircle, XCircle } from 'lucide-react';
-import { ProjectMember } from '../../types';
+import { Project, ProjectMember } from '../../types';
 import { Button } from '../Common/Button';
 import { MemberForm } from './MemberForm';
 
 interface MemberListProps {
-  projectId: string;
-  projectName: string;
-  members: ProjectMember[];
-  currentUserRole: 'owner' | 'admin' | 'member';
-  onUpdateMembers: (members: ProjectMember[]) => void;
-  onClose: () => void;
+  projects: Project[];
+  onUpdateProjects: (projects: Project[]) => void;
 }
 
-export function MemberList({ 
-  projectId, 
-  projectName, 
-  members, 
-  currentUserRole,
-  onUpdateMembers, 
-  onClose 
-}: MemberListProps) {
+export function MemberList({ projects, onUpdateProjects }: MemberListProps) {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMember, setEditingMember] = useState<ProjectMember | null>(null);
 
+  const project = projects.find(p => p.id === projectId);
+  if (!project) {
+    return <div>项目不存在</div>;
+  }
+
+  const members = project.members || [];
+  
+  // 模拟当前用户角色
+  const getCurrentUserRole = (): 'owner' | 'admin' | 'member' => {
+    const currentUser = members.find(m => m.email === 'admin@example.com');
+    return currentUser?.role || 'member';
+  };
+  
+  const currentUserRole = getCurrentUserRole();
+
+  const handleUpdateMembers = (updatedMembers: ProjectMember[]) => {
+    const updatedProject = {
+      ...project,
+      members: updatedMembers,
+      updatedAt: new Date().toISOString()
+    };
+    onUpdateProjects(projects.map(p => p.id === project.id ? updatedProject : p));
+  };
   const handleCreateMember = (memberData: Omit<ProjectMember, 'id' | 'joinedAt'>) => {
     const newMember: ProjectMember = {
       ...memberData,
       id: Date.now().toString(),
       joinedAt: new Date().toISOString()
     };
-    onUpdateMembers([...members, newMember]);
+    handleUpdateMembers([...members, newMember]);
     setShowCreateModal(false);
   };
 
@@ -42,7 +57,7 @@ export function MemberList({
       ...memberData
     };
     
-    onUpdateMembers(members.map(m => m.id === editingMember.id ? updatedMember : m));
+    handleUpdateMembers(members.map(m => m.id === editingMember.id ? updatedMember : m));
     setEditingMember(null);
   };
 
@@ -62,7 +77,7 @@ export function MemberList({
     }
     
     if (confirm('确定要移除这个成员吗？')) {
-      onUpdateMembers(members.filter(m => m.id !== memberId));
+      handleUpdateMembers(members.filter(m => m.id !== memberId));
     }
   };
 
@@ -82,7 +97,7 @@ export function MemberList({
       ...member,
       status: member.status === 'active' ? 'inactive' : 'active' as const
     };
-    onUpdateMembers(members.map(m => m.id === member.id ? updatedMember : m));
+    handleUpdateMembers(members.map(m => m.id === member.id ? updatedMember : m));
   };
 
   const getRoleIcon = (role: string) => {
@@ -135,14 +150,14 @@ export function MemberList({
       <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3">
-            <button
+                onClick={() => navigate('/')}
               onClick={onClose}
               className="text-gray-600 hover:text-gray-900"
             >
               ← 返回项目
             </button>
             <div className="w-px h-6 bg-gray-300" />
-            <div>
+                <h2 className="text-xl font-semibold text-gray-900">{project.name} - 成员管理</h2>
               <h2 className="text-xl font-semibold text-gray-900">{projectName} - 成员管理</h2>
               <p className="text-gray-600 mt-1">管理项目成员和权限</p>
             </div>
@@ -299,7 +314,7 @@ export function MemberList({
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateMember}
         title="添加成员"
-        projectId={projectId}
+        projectId={project.id}
         currentUserRole={currentUserRole}
       />
 
@@ -309,7 +324,7 @@ export function MemberList({
           onClose={() => setEditingMember(null)}
           onSubmit={handleEditMember}
           title="编辑成员"
-          projectId={projectId}
+          projectId={project.id}
           currentUserRole={currentUserRole}
           initialData={editingMember}
         />

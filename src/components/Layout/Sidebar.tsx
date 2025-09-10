@@ -1,22 +1,23 @@
 import React from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { 
   Database, 
   Globe, 
   FolderOpen, 
   Settings, 
   Home,
-  ChevronRight
+  ChevronRight,
+  Users
 } from 'lucide-react';
-import { ViewMode, WorkspaceTab } from '../../types';
 
-interface SidebarProps {
-  viewMode: ViewMode;
-  workspaceTab: WorkspaceTab;
-  currentProject: { id: string; name: string } | null;
-  onNavigate: (mode: ViewMode, tab?: WorkspaceTab) => void;
-}
+export function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const params = useParams();
+  
+  const projectId = params.projectId;
+  const isProjectRoute = location.pathname.includes('/project/');
 
-export function Sidebar({ viewMode, workspaceTab, currentProject, onNavigate }: SidebarProps) {
   return (
     <div className="w-64 bg-slate-900 text-white flex flex-col h-screen">
       <div className="p-6 border-b border-slate-700">
@@ -34,9 +35,9 @@ export function Sidebar({ viewMode, workspaceTab, currentProject, onNavigate }: 
       <nav className="flex-1 p-4">
         <div className="space-y-2">
           <button
-            onClick={() => onNavigate('projects')}
+            onClick={() => navigate('/')}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-              viewMode === 'projects'
+              location.pathname === '/'
                 ? 'bg-blue-600 text-white'
                 : 'text-slate-300 hover:bg-slate-800 hover:text-white'
             }`}
@@ -45,23 +46,32 @@ export function Sidebar({ viewMode, workspaceTab, currentProject, onNavigate }: 
             <span>项目管理</span>
           </button>
 
-          {currentProject && (
+          {isProjectRoute && projectId && (
             <div className="mt-6">
               <div className="px-3 mb-3">
                 <p className="text-slate-400 text-xs uppercase tracking-wider font-medium">
-                  当前项目
+                  项目工作区
                 </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <FolderOpen className="w-4 h-4 text-blue-400" />
-                  <span className="text-sm font-medium">{currentProject.name}</span>
-                </div>
               </div>
 
               <div className="space-y-1">
                 <button
-                  onClick={() => onNavigate('workspace', 'datasources')}
+                  onClick={() => navigate(`/project/${projectId}/members`)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    viewMode === 'workspace' && workspaceTab === 'datasources'
+                    location.pathname.includes('/members')
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Users className="w-5 h-5" />
+                  <span>成员管理</span>
+                  <ChevronRight className="w-4 h-4 ml-auto" />
+                </button>
+
+                <button
+                  onClick={() => navigate(`/project/${projectId}/datasources`)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    location.pathname.includes('/datasources')
                       ? 'bg-blue-600 text-white'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
@@ -72,9 +82,9 @@ export function Sidebar({ viewMode, workspaceTab, currentProject, onNavigate }: 
                 </button>
 
                 <button
-                  onClick={() => onNavigate('workspace', 'interfaces')}
+                  onClick={() => navigate(`/project/${projectId}/interfaces`)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    viewMode === 'workspace' && workspaceTab === 'interfaces'
+                    location.pathname.includes('/interfaces')
                       ? 'bg-blue-600 text-white'
                       : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}

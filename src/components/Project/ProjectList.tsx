@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Play, Pause, Users, FolderOpen } from 'lucide-react';
 import { Project } from '../../types';
 import { Button } from '../Common/Button';
 import { ProjectForm } from './ProjectForm';
-import { MemberList } from './MemberList';
 
 interface ProjectListProps {
   projects: Project[];
-  onSelectProject: (project: Project) => void;
   onUpdateProjects: (projects: Project[]) => void;
 }
 
-export function ProjectList({ projects, onSelectProject, onUpdateProjects }: ProjectListProps) {
+export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [managingMembers, setManagingMembers] = useState<Project | null>(null);
 
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,18 +75,6 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
     const currentUser = project.members?.find(m => m.email === 'admin@example.com');
     return currentUser?.role || 'member';
   };
-  if (managingMembers) {
-    return (
-      <MemberList
-        projectId={managingMembers.id}
-        projectName={managingMembers.name}
-        members={managingMembers.members || []}
-        currentUserRole={getCurrentUserRole(managingMembers)}
-        onUpdateMembers={(members) => handleUpdateMembers(managingMembers.id, members)}
-        onClose={() => setManagingMembers(null)}
-      />
-    );
-  }
 
   return (
     <div className="p-6">
@@ -130,7 +117,7 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setManagingMembers(project);
+                    navigate(`/project/${project.id}/members`);
                   }}
                   className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
                   title="成员管理"
@@ -187,7 +174,7 @@ export function ProjectList({ projects, onSelectProject, onUpdateProjects }: Pro
               </div>
               <Button
                 size="sm"
-                onClick={() => onSelectProject(project)}
+                onClick={() => navigate(`/project/${project.id}/datasources`)}
               >
                 进入项目
               </Button>
