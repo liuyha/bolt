@@ -33,15 +33,15 @@ export function Header() {
       padding: '0 24px',
       height: 64
     }}>
-      <div></div>
-
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <Input
           placeholder="搜索项目、接口..."
           prefix={<SearchOutlined />}
           style={{ width: 240 }}
         />
-        
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', minWidth: 0 }}>
             <Avatar size="small" icon={<UserOutlined />} />
