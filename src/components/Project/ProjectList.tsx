@@ -163,13 +163,30 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
                 }`}>
                   {project.status === 'active' ? '活跃' : '暂停'}
                 </span>
-              </div>
-              <div className="text-xs text-gray-500">
                 {project.members && project.members.length > 0 && (
-                  <span className="flex items-center gap-1">
-                    <Users className="w-3 h-3" />
-                    {project.members.length} 名成员
-                  </span>
+                  <div className="flex items-center gap-1">
+                    {(() => {
+                      const owner = project.members.find(m => m.role === 'owner');
+                      const admins = project.members.filter(m => m.role === 'admin');
+                      
+                      return (
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                          {owner && (
+                            <span className="flex items-center gap-1">
+                              <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                              {owner.username}
+                            </span>
+                          )}
+                          {admins.length > 0 && (
+                            <span className="flex items-center gap-1 ml-2">
+                              <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                              {admins.length === 1 ? admins[0].username : `${admins.length}名管理员`}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
+                  </div>
                 )}
               </div>
               <Button
@@ -181,9 +198,15 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
             </div>
 
             <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-xs text-gray-500">
-                创建于 {new Date(project.createdAt).toLocaleDateString('zh-CN')}
-              </p>
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>创建于 {new Date(project.createdAt).toLocaleDateString('zh-CN')}</span>
+                {project.members && project.members.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {project.members.length} 名成员
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}
