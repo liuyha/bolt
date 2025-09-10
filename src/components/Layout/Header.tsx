@@ -59,9 +59,9 @@ export function Header({ title, subtitle }: HeaderProps) {
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', minWidth: 0 }}>
             <Avatar size="small" icon={<UserOutlined />} />
-            <div style={{ textAlign: 'left', minWidth: 0, overflow: 'hidden' }}>
-              <div style={{ fontSize: 14, fontWeight: 500, color: '#262626', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>开发者</div>
-              <div style={{ fontSize: 12, color: '#8c8c8c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>admin@example.com</div>
+            <div style={{ textAlign: 'left', minWidth: 0, overflow: 'hidden', lineHeight: 1.2 }}>
+              <div style={{ fontSize: 14, fontWeight: 500, color: '#262626', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 2 }}>开发者</div>
+              <div style={{ fontSize: 12, color: '#8c8c8c', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1 }}>admin@example.com</div>
             </div>
           </div>
         </Dropdown>
