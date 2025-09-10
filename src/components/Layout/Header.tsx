@@ -4,12 +4,7 @@ import { BellOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
 
 const { Header: AntHeader } = Layout;
 
-interface HeaderProps {
-  title: string;
-  subtitle?: string;
-}
-
-export function Header({ title, subtitle }: HeaderProps) {
+export function Header() {
   const userMenuItems = [
     {
       key: 'profile',
@@ -38,12 +33,7 @@ export function Header({ title, subtitle }: HeaderProps) {
       padding: '0 24px',
       height: 64
     }}>
-      <div>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: '#262626', lineHeight: 1.2 }}>{title}</h1>
-        {subtitle && (
-          <p style={{ margin: '2px 0 0 0', color: '#8c8c8c', fontSize: 14, lineHeight: 1.2 }}>{subtitle}</p>
-        )}
-      </div>
+      <div></div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <Input

@@ -30,10 +30,7 @@ function App() {
         <Routes>
           <Route path="/" element={
             <>
-              <Header 
-                title="项目管理" 
-                subtitle="管理您的API设计项目"
-              />
+              <Header />
               <Content>
                 <ProjectList
                   projects={projects}
@@ -45,10 +42,7 @@ function App() {
           
           <Route path="/project/:projectId/members" element={
             <>
-              <Header 
-                title="成员管理" 
-                subtitle="管理项目成员和权限"
-              />
+              <Header />
               <Content>
                 <MemberList
                   projects={projects}
@@ -60,10 +54,7 @@ function App() {
           
           <Route path="/project/:projectId/datasources" element={
             <>
-              <Header 
-                title="数据源管理" 
-                subtitle="管理项目的数据库连接和DDL信息"
-              />
+              <Header />
               <Content>
                 <DataSourceList
                   dataSources={dataSources}
@@ -75,10 +66,7 @@ function App() {
           
           <Route path="/project/:projectId/interfaces" element={
             <>
-              <Header 
-                title="接口管理" 
-                subtitle="设计和管理API接口"
-              />
+              <Header />
               <Content>
                 <InterfaceList
                   interfaces={interfaces}
@@ -92,10 +80,7 @@ function App() {
           
           <Route path="/project/:projectId/interface-designer/:interfaceId" element={
             <>
-              <Header 
-                title="接口设计" 
-                subtitle="可视化设计API接口"
-              />
+              <Header />
               <Content>
                 <InterfaceDesigner
                   interfaces={interfaces}
