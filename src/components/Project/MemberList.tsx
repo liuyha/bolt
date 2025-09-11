@@ -16,7 +16,7 @@ export function MemberList({ projects, onUpdateProjects }: MemberListProps) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMember, setEditingMember] = useState<ProjectMember | null>(null);
 
-  const project = projects.find(p => p.id === projectId);
+  const project = projects.find(p => p.projectId.toString() === projectId);
   if (!project) {
     return <div>项目不存在</div>;
   }
@@ -37,7 +37,7 @@ export function MemberList({ projects, onUpdateProjects }: MemberListProps) {
       members: updatedMembers,
       updatedAt: new Date().toISOString()
     };
-    onUpdateProjects(projects.map(p => p.id === project.id ? updatedProject : p));
+    onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
   };
   const handleCreateMember = (memberData: Omit<ProjectMember, 'id' | 'joinedAt'>) => {
     const newMember: ProjectMember = {
