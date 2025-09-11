@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import { Project } from '../../types';
 import { ProjectForm } from './ProjectForm';
+import { MemberManagementModal } from './MemberManagementModal';
 
 const { Search } = Input;
 const { Meta } = Card;
@@ -28,6 +29,7 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [memberManagementProject, setMemberManagementProject] = useState<Project | null>(null);
 
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,6 +73,9 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
     onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
   };
 
+  const handleUpdateProject = (updatedProject: Project) => {
+    onUpdateProjects(projects.map(p => p.projectId === updatedProject.projectId ? updatedProject : p));
+  };
   const getRoleIcon = (role?: string) => {
     switch (role) {
       case 'owner':
@@ -87,21 +92,30 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
       <Button 
         type="text" 
         icon={<TeamOutlined />} 
-        onClick={() => navigate(`/project/${project.projectId}/members`)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setMemberManagementProject(project);
+        }}
       />
     </Tooltip>,
     <Tooltip title={project.state === 'active' ? '暂停项目' : '启动项目'} key="toggle">
       <Button 
         type="text" 
         icon={project.state === 'active' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-        onClick={() => handleToggleStatus(project)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleToggleStatus(project);
+        }}
       />
     </Tooltip>,
     <Tooltip title="编辑项目" key="edit">
       <Button 
         type="text" 
         icon={<EditOutlined />} 
-        onClick={() => setEditingProject(project)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setEditingProject(project);
+        }}
       />
     </Tooltip>,
     <Tooltip title="删除项目" key="delete">
@@ -109,7 +123,10 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
         type="text" 
         danger 
         icon={<DeleteOutlined />} 
-        onClick={() => handleDeleteProject(project.projectId)}
+        onClick={(e) => {
+          e.stopPropagation();
+          handleDeleteProject(project.projectId.toString());
+        }}
       />
     </Tooltip>
   ];
@@ -219,6 +236,14 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
         </Row>
       )}
 
+      {memberManagementProject && (
+        <MemberManagementModal
+          isOpen={true}
+          onClose={() => setMemberManagementProject(null)}
+          project={memberManagementProject}
+          onUpdateProject={handleUpdateProject}
+        />
+      )}
       <ProjectForm
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

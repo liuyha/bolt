@@ -43,12 +43,6 @@ export function Sidebar() {
         type: 'group',
         children: [
           {
-            key: 'members',
-            icon: <TeamOutlined />,
-            label: '成员管理',
-            onClick: () => navigate(`/project/${projectId}/members`)
-          },
-          {
             key: 'datasources',
             icon: <DatabaseOutlined />,
             label: '数据源管理',

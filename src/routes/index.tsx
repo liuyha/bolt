@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import { Layout } from 'antd';
 import { Header } from '../components/Layout/Header';
 import { ProjectList } from '../components/Project/ProjectList';
-import { MemberList } from '../components/Project/MemberList';
 import { DataSourceList } from '../components/DataSource/DataSourceList';
 import { InterfaceList } from '../components/Interface/InterfaceList';
 import { InterfaceDesigner } from '../components/Interface/InterfaceDesigner';
@@ -39,18 +38,6 @@ export function AppRoutes({
           <Header />
           <Content>
             <ProjectList
-              projects={projects}
-              onUpdateProjects={onUpdateProjects}
-            />
-          </Content>
-        </>
-      } />
-      
-      <Route path="/project/:projectId/members" element={
-        <>
-          <Header />
-          <Content>
-            <MemberList
               projects={projects}
               onUpdateProjects={onUpdateProjects}
             />
