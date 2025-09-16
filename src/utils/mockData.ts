@@ -95,6 +95,12 @@ export const mockCategories: InterfaceCategory[] = [
     projectId: '2',
     name: '权限管理',
     description: '权限相关的API接口'
+  },
+  {
+    id: '4',
+    projectId: '1',
+    name: '订单管理',
+    description: '订单相关的API接口'
   }
 ];
 
@@ -137,6 +143,97 @@ export const mockInterfaces: ApiInterface[] = [
     responseParams: [],
     createdAt: '2024-01-15T10:00:00.000Z',
     updatedAt: '2024-01-15T10:00:00.000Z'
+  },
+  {
+    id: '4',
+    projectId: '1',
+    categoryId: '1',
+    name: '更新用户信息',
+    path: '/api/users/{id}',
+    method: 'PUT',
+    description: '更新指定用户的信息',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T10:30:00.000Z',
+    updatedAt: '2024-01-15T10:30:00.000Z'
+  },
+  {
+    id: '5',
+    projectId: '1',
+    categoryId: '1',
+    name: '删除用户',
+    path: '/api/users/{id}',
+    method: 'DELETE',
+    description: '删除指定用户',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T11:00:00.000Z',
+    updatedAt: '2024-01-15T11:00:00.000Z'
+  },
+  {
+    id: '6',
+    projectId: '1',
+    categoryId: '2',
+    name: '创建商品',
+    path: '/api/products',
+    method: 'POST',
+    description: '创建新商品',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T11:30:00.000Z',
+    updatedAt: '2024-01-15T11:30:00.000Z'
+  },
+  {
+    id: '7',
+    projectId: '1',
+    categoryId: '2',
+    name: '获取商品详情',
+    path: '/api/products/{id}',
+    method: 'GET',
+    description: '根据商品ID获取商品详细信息',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T12:00:00.000Z',
+    updatedAt: '2024-01-15T12:00:00.000Z'
+  },
+  {
+    id: '8',
+    projectId: '1',
+    categoryId: '3',
+    name: '创建订单',
+    path: '/api/orders',
+    method: 'POST',
+    description: '创建新订单',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T12:30:00.000Z',
+    updatedAt: '2024-01-15T12:30:00.000Z'
+  },
+  {
+    id: '9',
+    projectId: '1',
+    categoryId: '3',
+    name: '获取订单列表',
+    path: '/api/orders',
+    method: 'GET',
+    description: '获取用户订单列表',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T13:00:00.000Z',
+    updatedAt: '2024-01-15T13:00:00.000Z'
+  },
+  {
+    id: '10',
+    projectId: '1',
+    categoryId: '3',
+    name: '取消订单',
+    path: '/api/orders/{id}/cancel',
+    method: 'PUT',
+    description: '取消指定订单',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T13:30:00.000Z',
+    updatedAt: '2024-01-15T13:30:00.000Z'
   }
 ];
 
