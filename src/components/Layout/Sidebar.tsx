@@ -16,13 +16,13 @@ export function Sidebar() {
   const params = useParams();
   
   const projectId = params.projectId;
-  const isProjectRoute = location.pathname.includes('/project/');
+  const isProjectRoute = projectId && location.pathname.includes('/project/');
 
   const getSelectedKey = () => {
     if (location.pathname === '/') return 'home';
-    if (location.pathname.includes('/members')) return 'members';
     if (location.pathname.includes('/datasources')) return 'datasources';
     if (location.pathname.includes('/interfaces')) return 'interfaces';
+    if (location.pathname.includes('/interface-designer')) return 'interfaces';
     return 'home';
   };
 
@@ -50,7 +50,7 @@ export function Sidebar() {
           },
           {
             key: 'interfaces',
-            icon: <SettingOutlined />,
+            icon: <GlobalOutlined />,
             label: '接口管理',
             onClick: () => navigate(`/project/${projectId}/interfaces`)
           }
