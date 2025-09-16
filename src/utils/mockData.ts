@@ -65,9 +65,8 @@ export const mockDataSources: DataSource[] = [
     status: 'connected',
     createdAt: '2024-02-01T10:00:00.000Z'
   }
-    email: 'admin@example.com',
-    role: 'owner',
-]
+];
+
 export const mockCategories: InterfaceCategory[] = [
   {
     id: '1',
