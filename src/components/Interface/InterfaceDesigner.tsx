@@ -1,25 +1,16 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Database, Code, Download, Check, ChevronRight } from 'lucide-react';
 import { ApiInterface, Table, Field } from '../../types';
 import { Button } from '../Common/Button';
 import { mockTables } from '../../utils/mockData';
 
 interface InterfaceDesignerProps {
-  interfaces: ApiInterface[];
-  onUpdateInterfaces: (interfaces: ApiInterface[]) => void;
+  interface: ApiInterface;
+  onClose: () => void;
+  onSave: (updatedInterface: ApiInterface) => void;
 }
 
-export function InterfaceDesigner({ interfaces, onUpdateInterfaces }: InterfaceDesignerProps) {
-  const { projectId, interfaceId } = useParams<{ projectId: string; interfaceId: string }>();
-  const navigate = useNavigate();
-  
-  const apiInterface = interfaces.find(iface => iface.id === interfaceId);
-  
-  if (!apiInterface) {
-    return <div>接口不存在</div>;
-  }
-
+export function InterfaceDesigner({ interface: apiInterface, onClose, onSave }: InterfaceDesignerProps) {
   const [activeTab, setActiveTab] = useState<'request' | 'response'>('request');
   const [selectedRequestFields, setSelectedRequestFields] = useState<{[key: string]: boolean}>({});
   const [selectedResponseFields, setSelectedResponseFields] = useState<{[key: string]: boolean}>({});
@@ -244,21 +235,11 @@ public class ${toPascalCase(apiInterface.name.replace(/\s+/g, ''))}Controller {
     return code;
   };
 
-  const handleSave = () => {
-    const updatedInterface = {
-      ...apiInterface,
-      updatedAt: new Date().toISOString()
-    };
-    onUpdateInterfaces(interfaces.map(iface => 
-      iface.id === apiInterface.id ? updatedInterface : iface
-    ));
-    navigate(`/project/${projectId}/interfaces`);
-  };
   return (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-6">
         <button
-          onClick={() => navigate(`/project/${projectId}/interfaces`)}
+          onClick={onClose}
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -623,7 +604,7 @@ public class ${toPascalCase(apiInterface.name.replace(/\s+/g, ''))}Controller {
               <Button variant="secondary" onClick={onClose}>
                 取消
               </Button>
-              <Button onClick={handleSave}>
+              <Button onClick={() => onSave(apiInterface)}>
                 <Check className="w-4 h-4 mr-2" />
                 保存接口
               </Button>

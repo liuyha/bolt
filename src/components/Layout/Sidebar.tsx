@@ -1,98 +1,96 @@
 import React from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Menu } from 'antd';
 import { 
-  DatabaseOutlined, 
-  GlobalOutlined, 
-  FolderOpenOutlined, 
-  SettingOutlined, 
-  HomeOutlined,
-  TeamOutlined
-} from '@ant-design/icons';
+  Database, 
+  Globe, 
+  FolderOpen, 
+  Settings, 
+  Home,
+  ChevronRight
+} from 'lucide-react';
+import { ViewMode, WorkspaceTab } from '../../types';
 
-export function Sidebar() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const params = useParams();
-  
-  const projectId = params.projectId;
-  const isProjectRoute = projectId && location.pathname.includes('/project/');
+interface SidebarProps {
+  viewMode: ViewMode;
+  workspaceTab: WorkspaceTab;
+  currentProject: { id: string; name: string } | null;
+  onNavigate: (mode: ViewMode, tab?: WorkspaceTab) => void;
+}
 
-  const getSelectedKey = () => {
-    if (location.pathname === '/') return 'home';
-    if (location.pathname.includes('/datasources')) return 'datasources';
-    if (location.pathname.includes('/interfaces')) return 'interfaces';
-    if (location.pathname.includes('/interface-designer')) return 'interfaces';
-    return 'home';
-  };
-
-  const menuItems = [
-    {
-      key: 'home',
-      icon: <HomeOutlined />,
-      label: '项目管理',
-      onClick: () => navigate('/')
-    }
-  ];
-
-  if (isProjectRoute && projectId) {
-    menuItems.push(
-      {
-        key: 'project-workspace',
-        label: '项目工作区',
-        type: 'group',
-        children: [
-          {
-            key: 'datasources',
-            icon: <DatabaseOutlined />,
-            label: '数据源管理',
-            onClick: () => navigate(`/project/${projectId}/datasources`)
-          },
-          {
-            key: 'interfaces',
-            icon: <GlobalOutlined />,
-            label: '接口管理',
-            onClick: () => navigate(`/project/${projectId}/interfaces`)
-          }
-        ]
-      }
-    );
-  }
-
+export function Sidebar({ viewMode, workspaceTab, currentProject, onNavigate }: SidebarProps) {
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ padding: '24px 16px', borderBottom: '1px solid #303030' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ 
-            width: 32, 
-            height: 32, 
-            background: '#1890ff', 
-            borderRadius: 8, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center' 
-          }}>
-            <GlobalOutlined style={{ color: 'white', fontSize: 16 }} />
+    <div className="w-64 bg-slate-900 text-white flex flex-col h-screen">
+      <div className="p-6 border-b border-slate-700">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <Globe className="w-5 h-5" />
           </div>
           <div>
-            <div style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>API Designer</div>
-            <div style={{ color: '#8c8c8c', fontSize: 12 }}>接口设计器</div>
+            <h1 className="font-bold text-lg">API Designer</h1>
+            <p className="text-slate-400 text-sm">接口设计器</p>
           </div>
         </div>
       </div>
 
-      <div style={{ flex: 1, padding: '16px 0' }}>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[getSelectedKey()]}
-          items={menuItems}
-          style={{ border: 'none' }}
-        />
-      </div>
+      <nav className="flex-1 p-4">
+        <div className="space-y-2">
+          <button
+            onClick={() => onNavigate('projects')}
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+              viewMode === 'projects'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+            }`}
+          >
+            <Home className="w-5 h-5" />
+            <span>项目管理</span>
+          </button>
 
-      <div style={{ padding: '16px', borderTop: '1px solid #303030' }}>
-        <div style={{ color: '#8c8c8c', fontSize: 12 }}>
+          {currentProject && (
+            <div className="mt-6">
+              <div className="px-3 mb-3">
+                <p className="text-slate-400 text-xs uppercase tracking-wider font-medium">
+                  当前项目
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <FolderOpen className="w-4 h-4 text-blue-400" />
+                  <span className="text-sm font-medium">{currentProject.name}</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <button
+                  onClick={() => onNavigate('workspace', 'datasources')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    viewMode === 'workspace' && workspaceTab === 'datasources'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Database className="w-5 h-5" />
+                  <span>数据源管理</span>
+                  <ChevronRight className="w-4 h-4 ml-auto" />
+                </button>
+
+                <button
+                  onClick={() => onNavigate('workspace', 'interfaces')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    viewMode === 'workspace' && workspaceTab === 'interfaces'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  }`}
+                >
+                  <Settings className="w-5 h-5" />
+                  <span>接口管理</span>
+                  <ChevronRight className="w-4 h-4 ml-auto" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </nav>
+
+      <div className="p-4 border-t border-slate-700">
+        <div className="text-slate-400 text-xs">
           <p>© 2025 API Designer</p>
           <p>企业级接口设计平台</p>
         </div>

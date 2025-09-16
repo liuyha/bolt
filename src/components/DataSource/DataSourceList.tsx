@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { Plus, Database, Edit, Trash2, CheckCircle, XCircle, AlertCircle, Settings, Code } from 'lucide-react';
 import { DataSource } from '../../types';
 import { Button } from '../Common/Button';
@@ -13,19 +12,14 @@ interface DataSourceListProps {
 }
 
 export function DataSourceList({ dataSources, onUpdateDataSources }: DataSourceListProps) {
-  const { projectId } = useParams<{ projectId: string }>();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingDataSource, setEditingDataSource] = useState<DataSource | null>(null);
   const [configuringTypeMapping, setConfiguringTypeMapping] = useState<DataSource | null>(null);
   const [showGlobalTypeMapping, setShowGlobalTypeMapping] = useState(false);
 
-  // 过滤当前项目的数据源
-  const projectDataSources = dataSources.filter(ds => ds.projectId === projectId);
-
   const handleCreateDataSource = (dataSourceData: Omit<DataSource, 'id' | 'createdAt'>) => {
     const newDataSource: DataSource = {
       ...dataSourceData,
-      projectId: projectId || '1',
       id: Date.now().toString(),
       createdAt: new Date().toISOString()
     };
@@ -115,7 +109,7 @@ export function DataSourceList({ dataSources, onUpdateDataSources }: DataSourceL
         </div>
       </div>
 
-      {projectDataSources.length === 0 ? (
+      {dataSources.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Database className="w-8 h-8 text-gray-400" />
@@ -151,7 +145,7 @@ export function DataSourceList({ dataSources, onUpdateDataSources }: DataSourceL
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {projectDataSources.map((dataSource) => (
+                {dataSources.map((dataSource) => (
                   <tr key={dataSource.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
@@ -220,11 +214,8 @@ export function DataSourceList({ dataSources, onUpdateDataSources }: DataSourceL
       <GlobalTypeMappingForm
         isOpen={showGlobalTypeMapping}
         onClose={() => setShowGlobalTypeMapping(false)}
-        dataSources={projectDataSources}
-        onUpdateDataSources={(updatedDataSources) => {
-          const otherDataSources = dataSources.filter(ds => ds.projectId !== projectId);
-          onUpdateDataSources([...otherDataSources, ...updatedDataSources]);
-        }}
+        dataSources={dataSources}
+        onUpdateDataSources={onUpdateDataSources}
       />
 
       {editingDataSource && (

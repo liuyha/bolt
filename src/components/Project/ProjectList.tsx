@@ -1,35 +1,21 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, Button, Input, Tag, Space, Row, Col, Avatar, Tooltip, Empty } from 'antd';
-import { 
-  PlusOutlined, 
-  SearchOutlined, 
-  EditOutlined, 
-  DeleteOutlined, 
-  PlayCircleOutlined, 
-  PauseCircleOutlined, 
-  TeamOutlined,
-  CrownOutlined,
-  UserOutlined
-} from '@ant-design/icons';
+import { Plus, Search, Edit, Trash2, Play, Pause, Users, FolderOpen } from 'lucide-react';
 import { Project } from '../../types';
+import { Button } from '../Common/Button';
 import { ProjectForm } from './ProjectForm';
-import { MemberManagementModal } from './MemberManagementModal';
-
-const { Search } = Input;
-const { Meta } = Card;
+import { MemberList } from './MemberList';
 
 interface ProjectListProps {
   projects: Project[];
+  onSelectProject: (project: Project) => void;
   onUpdateProjects: (projects: Project[]) => void;
 }
 
-export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
-  const navigate = useNavigate();
+export function ProjectList({ projects, onSelectProject, onUpdateProjects }: ProjectListProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [memberManagementProject, setMemberManagementProject] = useState<Project | null>(null);
+  const [managingMembers, setManagingMembers] = useState<Project | null>(null);
 
   const filteredProjects = projects.filter(project =>
     project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -39,8 +25,8 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
   const handleCreateProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newProject: Project = {
       ...projectData,
-      projectId: Date.now(),
-      createdTime: new Date().toISOString(),
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
     onUpdateProjects([...projects, newProject]);
@@ -56,194 +42,180 @@ export function ProjectList({ projects, onUpdateProjects }: ProjectListProps) {
       updatedAt: new Date().toISOString()
     };
     
-    onUpdateProjects(projects.map(p => p.projectId === editingProject.projectId ? updatedProject : p));
+    onUpdateProjects(projects.map(p => p.id === editingProject.id ? updatedProject : p));
     setEditingProject(null);
   };
 
   const handleDeleteProject = (projectId: string) => {
-    onUpdateProjects(projects.filter(p => p.projectId.toString() !== projectId));
+    if (confirm('确定要删除这个项目吗？此操作不可恢复。')) {
+      onUpdateProjects(projects.filter(p => p.id !== projectId));
+    }
   };
 
   const handleToggleStatus = (project: Project) => {
     const updatedProject = {
       ...project,
-      state: project.state === 'active' ? 'inactive' : 'active',
+      status: project.status === 'active' ? 'inactive' : 'active' as const,
       updatedAt: new Date().toISOString()
     };
-    onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
+    onUpdateProjects(projects.map(p => p.id === project.id ? updatedProject : p));
   };
 
-  const handleUpdateProject = (updatedProject: Project) => {
-    onUpdateProjects(projects.map(p => p.projectId === updatedProject.projectId ? updatedProject : p));
-  };
-  const getRoleIcon = (role?: string) => {
-    switch (role) {
-      case 'owner':
-        return <CrownOutlined style={{ color: '#f5222d' }} />;
-      case 'admin':
-        return <CrownOutlined style={{ color: '#faad14' }} />;
-      default:
-        return <UserOutlined style={{ color: '#8c8c8c' }} />;
-    }
+  const handleUpdateMembers = (projectId: string, members: any[]) => {
+    const updatedProjects = projects.map(p => 
+      p.id === projectId 
+        ? { ...p, members, updatedAt: new Date().toISOString() }
+        : p
+    );
+    onUpdateProjects(updatedProjects);
   };
 
-  const renderProjectActions = (project: Project) => [
-    <Tooltip title="成员管理" key="members">
-      <Button 
-        type="text" 
-        icon={<TeamOutlined />} 
-        onClick={(e) => {
-          e.stopPropagation();
-          setMemberManagementProject(project);
-        }}
+  // 模拟当前用户角色，实际应用中应该从用户上下文获取
+  const getCurrentUserRole = (project: Project): 'owner' | 'admin' | 'member' => {
+    // 这里简化处理，假设第一个成员是拥有者，实际应该根据当前登录用户判断
+    const currentUser = project.members?.find(m => m.email === 'admin@example.com');
+    return currentUser?.role || 'member';
+  };
+  if (managingMembers) {
+    return (
+      <MemberList
+        projectId={managingMembers.id}
+        projectName={managingMembers.name}
+        members={managingMembers.members || []}
+        currentUserRole={getCurrentUserRole(managingMembers)}
+        onUpdateMembers={(members) => handleUpdateMembers(managingMembers.id, members)}
+        onClose={() => setManagingMembers(null)}
       />
-    </Tooltip>,
-    <Tooltip title={project.state === 'active' ? '暂停项目' : '启动项目'} key="toggle">
-      <Button 
-        type="text" 
-        icon={project.state === 'active' ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleToggleStatus(project);
-        }}
-      />
-    </Tooltip>,
-    <Tooltip title="编辑项目" key="edit">
-      <Button 
-        type="text" 
-        icon={<EditOutlined />} 
-        onClick={(e) => {
-          e.stopPropagation();
-          setEditingProject(project);
-        }}
-      />
-    </Tooltip>,
-    <Tooltip title="删除项目" key="delete">
-      <Button 
-        type="text" 
-        danger 
-        icon={<DeleteOutlined />} 
-        onClick={(e) => {
-          e.stopPropagation();
-          handleDeleteProject(project.projectId.toString());
-        }}
-      />
-    </Tooltip>
-  ];
+    );
+  }
 
   return (
-    <div>
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>项目管理</h2>
-          <p style={{ margin: '4px 0 0 0', color: '#8c8c8c' }}>管理您的API设计项目</p>
+          <h2 className="text-xl font-semibold text-gray-900">项目管理</h2>
+          <p className="text-gray-600 mt-1">管理您的API设计项目</p>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
+        <Button onClick={() => setShowCreateModal(true)}>
+          <Plus className="w-4 h-4 mr-2" />
           新建项目
         </Button>
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <Search
-          placeholder="搜索项目..."
-          allowClear
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ maxWidth: 400 }}
-        />
+      <div className="mb-6">
+        <div className="relative">
+          <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            placeholder="搜索项目..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
       </div>
 
-      {filteredProjects.length === 0 ? (
-        <Empty
-          description="暂无项目"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        >
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setShowCreateModal(true)}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProjects.map((project) => (
+          <div
+            key={project.id}
+            className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow cursor-pointer group"
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 mb-2">{project.name}</h3>
+                <p className="text-gray-600 text-sm line-clamp-2">{project.description}</p>
+              </div>
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setManagingMembers(project);
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                  title="成员管理"
+                >
+                  <Users className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleStatus(project);
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  {project.status === 'active' ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingProject(project);
+                  }}
+                  className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteProject(project.id);
+                  }}
+                  className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  project.status === 'active' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {project.status === 'active' ? '活跃' : '暂停'}
+                </span>
+              </div>
+              <div className="text-xs text-gray-500">
+                {project.members && project.members.length > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3 h-3" />
+                    {project.members.length} 名成员
+                  </span>
+                )}
+              </div>
+              <Button
+                size="sm"
+                onClick={() => onSelectProject(project)}
+              >
+                进入项目
+              </Button>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <p className="text-xs text-gray-500">
+                创建于 {new Date(project.createdAt).toLocaleDateString('zh-CN')}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {filteredProjects.length === 0 && (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FolderOpen className="w-8 h-8 text-gray-400" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">暂无项目</h3>
+          <p className="text-gray-600 mb-4">创建您的第一个API设计项目</p>
+          <Button onClick={() => setShowCreateModal(true)}>
+            <Plus className="w-4 h-4 mr-2" />
             新建项目
           </Button>
-        </Empty>
-      ) : (
-        <Row gutter={[16, 16]}>
-          {filteredProjects.map((project) => (
-            <Col xs={24} sm={12} lg={8} key={project.projectId}>
-              <Card
-                hoverable
-                actions={renderProjectActions(project)}
-                style={{ height: '100%' }}
-              >
-                <Meta
-                  title={
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>{project.name}</span>
-                      <Tag color={project.state === 'active' ? 'success' : 'default'}>
-                        {project.state === 'active' ? '活跃' : '暂停'}
-                      </Tag>
-                    </div>
-                  }
-                  description={
-                    <div>
-                      <p style={{ margin: '8px 0', color: '#8c8c8c', minHeight: 40 }}>
-                        {project.description}
-                      </p>
-                      
-                      <div style={{ marginBottom: 12 }}>
-                        <Space size="small">
-                          <Tooltip title={`当前角色: ${project.belongRole}`}>
-                            <Space size={4}>
-                              {getRoleIcon(project.belongRole)}
-                              <span style={{ fontSize: 12 }}>{project.belongRole}</span>
-                            </Space>
-                          </Tooltip>
-                          {project.administrators && (
-                            <Tooltip title={`管理员: ${project.administrators}`}>
-                              <Space size={4}>
-                                {getRoleIcon('admin')}
-                                <span style={{ fontSize: 12 }}>管理员</span>
-                              </Space>
-                            </Tooltip>
-                          )}
-                        </Space>
-                      </div>
-                      
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 12, color: '#8c8c8c' }}>
-                          创建于 {new Date(project.createdTime).toLocaleDateString('zh-CN')}
-                        </span>
-                        <Space size={4}>
-                          <TeamOutlined style={{ fontSize: 12, color: '#8c8c8c' }} />
-                          <span style={{ fontSize: 12, color: '#8c8c8c' }}>
-                            {project.memberTotal} 名成员
-                          </span>
-                        </Space>
-                      </div>
-                      
-                      <div style={{ marginTop: 12 }}>
-                        <Button 
-                          type="primary" 
-                          size="small" 
-                          block
-                          onClick={() => navigate(`/project/${project.projectId}/datasources`)}
-                        >
-                          进入项目
-                        </Button>
-                      </div>
-                    </div>
-                  }
-                />
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        </div>
       )}
 
-      {memberManagementProject && (
-        <MemberManagementModal
-          isOpen={true}
-          onClose={() => setMemberManagementProject(null)}
-          project={memberManagementProject}
-          onUpdateProject={handleUpdateProject}
-        />
-      )}
       <ProjectForm
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
