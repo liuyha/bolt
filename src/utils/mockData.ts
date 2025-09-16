@@ -1,75 +1,35 @@
-import { Project, DataSource, Table, Field, ApiInterface, InterfaceCategory, ProjectMember } from '../types';
-
-export const mockMembers: ProjectMember[] = [
-  {
-    id: '1',
-    projectId: '1',
-    userId: 'user1',
-    username: '张三',
-    email: 'admin@example.com',
-    role: 'owner',
-    joinedAt: '2024-01-15T10:30:00Z',
-    status: 'active'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    userId: 'user2',
-    username: '李四',
-    email: 'lisi@example.com',
-    role: 'admin',
-    joinedAt: '2024-01-16T14:20:00Z',
-    status: 'active'
-  },
-  {
-    id: '4',
-    projectId: '1',
-    userId: 'user4',
-    username: '赵六',
-    email: 'zhaoliu@example.com',
-    role: 'member',
-    joinedAt: '2024-01-17T16:30:00Z',
-    status: 'active'
-  },
-  {
-    id: '3',
-    projectId: '2',
-    userId: 'user3',
-    username: '王五',
-    email: 'wangwu@example.com',
-    role: 'owner',
-    joinedAt: '2024-01-10T09:15:00Z',
-    status: 'active'
-  }
-];
+import { Project, DataSource, ApiInterface, InterfaceCategory, Table, Field } from '../types';
 
 export const mockProjects: Project[] = [
   {
-    id: '1',
+    projectId: 1,
     name: '电商平台API',
-    description: '电商平台核心业务API接口设计',
-    createdAt: '2024-01-15T10:30:00Z',
-    updatedAt: '2024-01-20T14:22:00Z',
-    status: 'active',
-    members: mockMembers.filter(m => m.projectId === '1')
+    description: '电商平台的核心API接口设计',
+    state: 'active',
+    memberTotal: 5,
+    belongRole: 'owner',
+    administrators: '张三',
+    createdTime: '2024-01-15T08:00:00.000Z'
   },
   {
-    id: '2',
+    projectId: 2,
     name: '用户管理系统',
-    description: '企业级用户权限管理系统API',
-    createdAt: '2024-01-10T09:15:00Z',
-    updatedAt: '2024-01-18T16:45:00Z',
-    status: 'active',
-    members: mockMembers.filter(m => m.projectId === '2')
+    description: '企业用户管理系统API',
+    state: 'active',
+    memberTotal: 3,
+    belongRole: 'admin',
+    administrators: '李四',
+    createdTime: '2024-02-01T09:30:00.000Z'
   },
   {
-    id: '3',
-    name: '内容管理平台',
-    description: 'CMS内容发布和管理API',
-    createdAt: '2024-01-05T08:00:00Z',
-    updatedAt: '2024-01-12T11:30:00Z',
-    status: 'inactive',
-    members: []
+    projectId: 3,
+    name: '支付网关',
+    description: '统一支付网关接口',
+    state: 'inactive',
+    memberTotal: 8,
+    belongRole: 'member',
+    administrators: '王五',
+    createdTime: '2024-01-20T14:15:00.000Z'
   }
 ];
 
@@ -85,20 +45,99 @@ export const mockDataSources: DataSource[] = [
     username: 'root',
     password: '******',
     status: 'connected',
-    createdAt: '2024-01-15T10:35:00Z'
+    createdAt: '2024-01-15T08:30:00.000Z',
+    typeMappings: [
+      { id: '1', dbType: 'varchar', codeType: 'string', language: 'typescript' },
+      { id: '2', dbType: 'int', codeType: 'number', language: 'typescript' },
+      { id: '3', dbType: 'timestamp', codeType: 'Date', language: 'typescript' }
+    ]
   },
   {
     id: '2',
-    projectId: '1',
+    projectId: '2',
     name: '用户数据库',
     type: 'postgresql',
-    host: 'pg.example.com',
+    host: '192.168.1.100',
     port: 5432,
     database: 'users',
     username: 'postgres',
     password: '******',
     status: 'connected',
-    createdAt: '2024-01-16T14:20:00Z'
+    createdAt: '2024-02-01T10:00:00.000Z'
+  }
+    email: 'admin@example.com',
+    role: 'owner',
+]
+export const mockCategories: InterfaceCategory[] = [
+  {
+    id: '1',
+    projectId: '1',
+    name: '用户管理',
+    description: '用户相关的API接口'
+  },
+  {
+    id: '2',
+    role: 'owner',
+    name: '商品管理',
+    description: '商品相关的API接口'
+  },
+  {
+    id: '4',
+    projectId: '1',
+    userId: 'user4',
+    username: '赵六',
+    email: 'zhaoliu@example.com',
+    role: 'member',
+    joinedAt: '2024-01-17T16:30:00Z',
+    status: 'active'
+  },
+  {
+    id: '3',
+    projectId: '2',
+    name: '权限管理',
+    description: '权限相关的API接口'
+  }
+];
+
+export const mockInterfaces: ApiInterface[] = [
+  {
+    id: '1',
+    projectId: '1',
+    categoryId: '1',
+    name: '获取用户信息',
+    path: '/api/users/{id}',
+    method: 'GET',
+    description: '根据用户ID获取用户详细信息',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T09:00:00.000Z',
+    updatedAt: '2024-01-15T09:00:00.000Z'
+  },
+  {
+    id: '2',
+    projectId: '1',
+    categoryId: '1',
+    name: '创建用户',
+    path: '/api/users',
+    method: 'POST',
+    description: '创建新用户',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T09:15:00.000Z',
+    updatedAt: '2024-01-15T09:15:00.000Z'
+  },
+  {
+    id: '3',
+    projectId: '1',
+    categoryId: '2',
+    name: '获取商品列表',
+    path: '/api/products',
+    method: 'GET',
+    description: '分页获取商品列表',
+    requestParams: [],
+    responseParams: [],
+    createdAt: '2024-01-15T10:00:00.000Z',
+    updatedAt: '2024-01-15T10:00:00.000Z'
   }
 ];
 
@@ -106,13 +145,13 @@ export const mockTables: Table[] = [
   {
     id: '1',
     name: 'users',
-    dataSourceId: '1',
-    comment: '用户信息表',
+    comment: '用户表',
     fields: [
       {
         id: '1',
         name: 'id',
         type: 'bigint',
+        length: 20,
         nullable: false,
         isPrimaryKey: true,
         isForeignKey: false,
@@ -140,33 +179,51 @@ export const mockTables: Table[] = [
       },
       {
         id: '4',
+        name: 'phone',
+        type: 'varchar',
+        length: 20,
+        nullable: true,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '手机号码'
+      },
+      {
+        id: '5',
         name: 'created_at',
         type: 'timestamp',
         nullable: false,
-        defaultValue: 'CURRENT_TIMESTAMP',
         isPrimaryKey: false,
         isForeignKey: false,
         comment: '创建时间'
+      },
+      {
+        id: '6',
+        name: 'updated_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '更新时间'
       }
     ]
   },
   {
     id: '2',
     name: 'products',
-    dataSourceId: '1',
-    comment: '商品信息表',
+    comment: '商品表',
     fields: [
       {
-        id: '5',
+        id: '7',
         name: 'id',
         type: 'bigint',
+        length: 20,
         nullable: false,
         isPrimaryKey: true,
         isForeignKey: false,
         comment: '商品ID'
       },
       {
-        id: '6',
+        id: '8',
         name: 'name',
         type: 'varchar',
         length: 200,
@@ -176,7 +233,16 @@ export const mockTables: Table[] = [
         comment: '商品名称'
       },
       {
-        id: '7',
+        id: '9',
+        name: 'description',
+        type: 'text',
+        nullable: true,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '商品描述'
+      },
+      {
+        id: '10',
         name: 'price',
         type: 'decimal',
         length: 10,
@@ -186,33 +252,72 @@ export const mockTables: Table[] = [
         comment: '商品价格'
       },
       {
-        id: '8',
-        name: 'user_id',
+        id: '11',
+        name: 'category_id',
         type: 'bigint',
+        length: 20,
         nullable: false,
         isPrimaryKey: false,
         isForeignKey: true,
-        comment: '创建用户ID'
+        comment: '分类ID'
+      },
+      {
+        id: '12',
+        name: 'stock',
+        type: 'int',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '库存数量'
+      },
+      {
+        id: '13',
+        name: 'status',
+        type: 'varchar',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '商品状态'
+      },
+      {
+        id: '14',
+        name: 'created_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '创建时间'
       }
     ]
   },
   {
     id: '3',
     name: 'orders',
-    dataSourceId: '1',
-    comment: '订单信息表',
+    comment: '订单表',
     fields: [
       {
-        id: '9',
+        id: '15',
         name: 'id',
         type: 'bigint',
+        length: 20,
         nullable: false,
         isPrimaryKey: true,
         isForeignKey: false,
         comment: '订单ID'
       },
       {
-        id: '10',
+        id: '16',
+        name: 'user_id',
+        type: 'bigint',
+        length: 20,
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: true,
+        comment: '用户ID'
+      },
+      {
+        id: '17',
         name: 'order_no',
         type: 'varchar',
         length: 50,
@@ -222,7 +327,7 @@ export const mockTables: Table[] = [
         comment: '订单号'
       },
       {
-        id: '11',
+        id: '18',
         name: 'total_amount',
         type: 'decimal',
         length: 10,
@@ -232,75 +337,24 @@ export const mockTables: Table[] = [
         comment: '订单总金额'
       },
       {
-        id: '12',
-        name: 'user_id',
-        type: 'bigint',
-        nullable: false,
-        isPrimaryKey: false,
-        isForeignKey: true,
-        comment: '用户ID'
-      },
-      {
-        id: '13',
+        id: '19',
         name: 'status',
         type: 'varchar',
         length: 20,
         nullable: false,
-        defaultValue: 'pending',
         isPrimaryKey: false,
         isForeignKey: false,
         comment: '订单状态'
+      },
+      {
+        id: '20',
+        name: 'created_at',
+        type: 'timestamp',
+        nullable: false,
+        isPrimaryKey: false,
+        isForeignKey: false,
+        comment: '创建时间'
       }
     ]
-  }
-];
-
-export const mockCategories: InterfaceCategory[] = [
-  {
-    id: '1',
-    projectId: '1',
-    name: '用户管理',
-    description: '用户相关的API接口'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    name: '商品管理',
-    description: '商品相关的API接口'
-  },
-  {
-    id: '3',
-    projectId: '1',
-    name: '订单管理',
-    description: '订单相关的API接口'
-  }
-];
-
-export const mockInterfaces: ApiInterface[] = [
-  {
-    id: '1',
-    projectId: '1',
-    categoryId: '1',
-    name: '获取用户信息',
-    path: '/api/users/{id}',
-    method: 'GET',
-    description: '根据用户ID获取用户详细信息',
-    requestParams: [],
-    responseParams: [],
-    createdAt: '2024-01-15T11:00:00Z',
-    updatedAt: '2024-01-20T15:30:00Z'
-  },
-  {
-    id: '2',
-    projectId: '1',
-    categoryId: '1',
-    name: '创建用户',
-    path: '/api/users',
-    method: 'POST',
-    description: '创建新用户账户',
-    requestParams: [],
-    responseParams: [],
-    createdAt: '2024-01-16T09:30:00Z',
-    updatedAt: '2024-01-18T13:45:00Z'
   }
 ];
