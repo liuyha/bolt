@@ -82,6 +82,18 @@ export function AppRoutes({
           </Content>
         </>
       } />
+      
+      <Route path="/project/:projectId/interface-designer/:interfaceId" element={
+        <>
+          <Header />
+          <Content>
+            <InterfaceDesigner
+              interfaces={interfaces}
+              onUpdateInterfaces={onUpdateInterfaces}
+            />
+          </Content>
+        </>
+      } />
     </Routes>
   );
 }
