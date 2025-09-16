@@ -1,36 +1,52 @@
 import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Users, Edit, Trash2, Crown, User, CheckCircle, XCircle } from 'lucide-react';
-import { ProjectMember } from '../../types';
+import { Project, ProjectMember } from '../../types';
 import { Button } from '../Common/Button';
 import { MemberForm } from './MemberForm';
 
 interface MemberListProps {
-  projectId: string;
-  projectName: string;
-  members: ProjectMember[];
+  projects: Project[];
+  onUpdateProjects: (projects: Project[]) => void;
   currentUserRole: 'owner' | 'admin' | 'member';
-  onUpdateMembers: (members: ProjectMember[]) => void;
-  onClose: () => void;
 }
 
-export function MemberList({ 
-  projectId, 
-  projectName, 
-  members, 
-  currentUserRole,
-  onUpdateMembers, 
-  onClose 
-}: MemberListProps) {
+export function MemberList({ projects, onUpdateProjects, currentUserRole }: MemberListProps) {
+  const { projectId } = useParams<{ projectId: string }>();
+  const navigate = useNavigate();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMember, setEditingMember] = useState<ProjectMember | null>(null);
 
+  const project = projects.find(p => p.projectId.toString() === projectId);
+  if (!project) {
+    return <div>项目不存在</div>;
+  }
+
+  const members = project.members || [];
+  
+  // 模拟当前用户角色
+  const getCurrentUserRole = (): 'owner' | 'admin' | 'member' => {
+    const currentUser = members.find(m => m.email === 'admin@example.com');
+    return currentUser?.role || 'member';
+  };
+  
+  const currentUserRole2 = getCurrentUserRole();
+
+  const handleUpdateMembers = (updatedMembers: ProjectMember[]) => {
+    const updatedProject = {
+      ...project,
+      members: updatedMembers,
+      updatedAt: new Date().toISOString()
+    };
+    onUpdateProjects(projects.map(p => p.projectId === project.projectId ? updatedProject : p));
+  };
   const handleCreateMember = (memberData: Omit<ProjectMember, 'id' | 'joinedAt'>) => {
     const newMember: ProjectMember = {
       ...memberData,
       id: Date.now().toString(),
       joinedAt: new Date().toISOString()
     };
-    onUpdateMembers([...members, newMember]);
+    handleUpdateMembers([...members, newMember]);
     setShowCreateModal(false);
   };
 
@@ -42,7 +58,7 @@ export function MemberList({
       ...memberData
     };
     
-    onUpdateMembers(members.map(m => m.id === editingMember.id ? updatedMember : m));
+    handleUpdateMembers(members.map(m => m.id === editingMember.id ? updatedMember : m));
     setEditingMember(null);
   };
 
@@ -61,8 +77,22 @@ export function MemberList({
       return;
     }
     
+    const member2 = members.find(m => m.id === memberId);
+    if (!member2) return;
+    
+    // 检查权限
+    if (currentUserRole === 'member') {
+      alert('您没有权限移除成员');
+      return;
+    }
+    
+    if (currentUserRole === 'admin' && (member2.role === 'owner' || member2.role === 'admin')) {
+      alert('管理员不能移除拥有者或其他管理员');
+      return;
+    }
+    
     if (confirm('确定要移除这个成员吗？')) {
-      onUpdateMembers(members.filter(m => m.id !== memberId));
+      handleUpdateMembers(members.filter(m => m.id !== memberId));
     }
   };
 
@@ -78,11 +108,22 @@ export function MemberList({
       return;
     }
     
+    // 检查权限
+    if (currentUserRole === 'member') {
+      alert('您没有权限修改成员状态');
+      return;
+    }
+    
+    if (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin')) {
+      alert('管理员不能修改拥有者或其他管理员的状态');
+      return;
+    }
+    
     const updatedMember = {
       ...member,
       status: member.status === 'active' ? 'inactive' : 'active' as const
     };
-    onUpdateMembers(members.map(m => m.id === member.id ? updatedMember : m));
+    handleUpdateMembers(members.map(m => m.id === member.id ? updatedMember : m));
   };
 
   const getRoleIcon = (role: string) => {
@@ -136,14 +177,14 @@ export function MemberList({
         <div>
           <div className="flex items-center gap-3">
             <button
-              onClick={onClose}
+              onClick={() => navigate('/')}
               className="text-gray-600 hover:text-gray-900"
             >
               ← 返回项目
             </button>
             <div className="w-px h-6 bg-gray-300" />
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">{projectName} - 成员管理</h2>
+              <h2 className="text-xl font-semibold text-gray-900">{project.name} - 成员管理</h2>
               <p className="text-gray-600 mt-1">管理项目成员和权限</p>
             </div>
           </div>
@@ -233,36 +274,36 @@ export function MemberList({
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleToggleStatus(member)}
-                         disabled={
-                           currentUserRole === 'member' || 
-                           (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin'))
-                         }
+                          disabled={
+                            currentUserRole === 'member' || 
+                            (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin'))
+                          }
                           className={`p-1 rounded hover:bg-gray-50 ${
                             member.status === 'active' 
                               ? 'text-gray-600 hover:text-gray-900' 
                               : 'text-green-600 hover:text-green-900'
-                         } disabled:opacity-50 disabled:cursor-not-allowed`}
+                          } disabled:opacity-50 disabled:cursor-not-allowed`}
                           title={member.status === 'active' ? '禁用成员' : '启用成员'}
                         >
                           {member.status === 'active' ? <XCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
                         </button>
                         <button
                           onClick={() => setEditingMember(member)}
-                         disabled={
-                           currentUserRole === 'member' || 
-                           (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin'))
-                         }
-                         className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={
+                            currentUserRole === 'member' || 
+                            (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin'))
+                          }
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDeleteMember(member.id)}
-                         disabled={
-                           currentUserRole === 'member' || 
-                           (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin'))
-                         }
-                         className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={
+                            currentUserRole === 'member' || 
+                            (currentUserRole === 'admin' && (member.role === 'owner' || member.role === 'admin'))
+                          }
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -299,7 +340,7 @@ export function MemberList({
         onClose={() => setShowCreateModal(false)}
         onSubmit={handleCreateMember}
         title="添加成员"
-        projectId={projectId}
+        projectId={project.id}
         currentUserRole={currentUserRole}
       />
 
@@ -309,7 +350,7 @@ export function MemberList({
           onClose={() => setEditingMember(null)}
           onSubmit={handleEditMember}
           title="编辑成员"
-          projectId={projectId}
+          projectId={project.id}
           currentUserRole={currentUserRole}
           initialData={editingMember}
         />
